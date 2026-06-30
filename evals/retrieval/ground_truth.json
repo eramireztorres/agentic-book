@@ -1,0 +1,44 @@
+[
+  {
+    "id": "mcp_streamable_http",
+    "query": "MCP Streamable HTTP resources tools prompts",
+    "expected_document_ids": ["concept.mcp"],
+    "top_k": 5,
+    "tags": ["direct", "mcp"]
+  },
+  {
+    "id": "fastmcp_server",
+    "query": "FastMCP Usage Boundary Python-facing server framework",
+    "expected_document_ids": ["platform.fastmcp"],
+    "top_k": 5,
+    "tags": ["direct", "platform"]
+  },
+  {
+    "id": "hybrid_retrieval_rrf",
+    "query": "hybrid retrieval reciprocal rank fusion vector lexical",
+    "expected_document_ids": ["pattern.hybrid-retrieval"],
+    "top_k": 5,
+    "tags": ["direct", "retrieval"]
+  },
+  {
+    "id": "mcp_consumption_playbook",
+    "query": "playbook consume MCP server agent discovery citations",
+    "expected_document_ids": ["playbook.mcp-consumption"],
+    "top_k": 5,
+    "tags": ["direct", "playbook"]
+  },
+  {
+    "id": "multi_hop_mcp_fastmcp",
+    "query": "compare MCP protocol with FastMCP implementation",
+    "expected_document_ids": ["concept.mcp", "platform.fastmcp"],
+    "top_k": 5,
+    "tags": ["multi-hop", "mcp"]
+  },
+  {
+    "id": "unanswerable_quantum_gardening",
+    "query": "quantum gardening zebra orchid compost",
+    "expected_document_ids": [],
+    "top_k": 5,
+    "tags": ["unanswerable"]
+  }
+]

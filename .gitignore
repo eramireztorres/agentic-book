@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Agentic Book local generated indexes
+.agentic-book-data/
+# Local prompt scratch files
+prompt_commands_NEVER_COMMIT.txt

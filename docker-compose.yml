@@ -1,0 +1,29 @@
+services:
+  agentic-book-mcp:
+    build:
+      context: .
+    image: agentic-book:local
+    ports:
+      - "8000:8000"
+    environment:
+      AGENTIC_BOOK_CONTENT_ROOT: /app/content
+      AGENTIC_BOOK_DATA_DIR: /data
+      AGENTIC_BOOK_AUTO_INGEST: "true"
+    volumes:
+      - agentic-book-data:/data
+    command:
+      - agentic-book
+      - --content-root
+      - /app/content
+      - --data-dir
+      - /data
+      - serve-mcp
+      - --transport
+      - http
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+
+volumes:
+  agentic-book-data:

@@ -1,0 +1,4 @@
+interface:
+  display_name: "OpenEvolve Experiment"
+  short_description: "Design, debug, and tune OpenEvolve experiments for stronger results"
+  default_prompt: "Use $openevolve-experiment to create or improve an OpenEvolve experiment with correct combined_score ranking, reliable evaluator behavior, and tuned config/prompt settings."
