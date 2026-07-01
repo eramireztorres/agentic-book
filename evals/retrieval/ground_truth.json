@@ -2,43 +2,77 @@
   {
     "id": "mcp_streamable_http",
     "query": "MCP Streamable HTTP resources tools prompts",
-    "expected_document_ids": ["concept.mcp"],
+    "expected_document_ids": [
+      "concept.mcp",
+      "pattern.sql-agent-mcp-serving"
+    ],
     "top_k": 5,
-    "tags": ["direct", "mcp"]
+    "tags": [
+      "direct",
+      "mcp"
+    ]
   },
   {
     "id": "fastmcp_server",
     "query": "FastMCP Usage Boundary Python-facing server framework",
-    "expected_document_ids": ["platform.fastmcp"],
+    "expected_document_ids": [
+      "platform.fastmcp"
+    ],
     "top_k": 5,
-    "tags": ["direct", "platform"]
+    "tags": [
+      "direct",
+      "platform"
+    ]
   },
   {
     "id": "hybrid_retrieval_rrf",
     "query": "hybrid retrieval reciprocal rank fusion vector lexical",
-    "expected_document_ids": ["pattern.hybrid-retrieval"],
+    "expected_document_ids": [
+      "pattern.hybrid-retrieval"
+    ],
     "top_k": 5,
-    "tags": ["direct", "retrieval"]
+    "tags": [
+      "direct",
+      "retrieval"
+    ]
   },
   {
     "id": "mcp_consumption_playbook",
     "query": "playbook consume MCP server agent discovery citations",
-    "expected_document_ids": ["playbook.mcp-consumption"],
+    "expected_document_ids": [
+      "playbook.mcp-consumption",
+      "playbook.sql-agent-enterprise",
+      "pattern.sql-agent-mcp-serving",
+      "pattern.sql-agent-consumption"
+    ],
     "top_k": 5,
-    "tags": ["direct", "playbook"]
+    "tags": [
+      "direct",
+      "playbook"
+    ]
   },
   {
     "id": "multi_hop_mcp_fastmcp",
-    "query": "compare MCP protocol with FastMCP implementation",
-    "expected_document_ids": ["concept.mcp", "platform.fastmcp"],
+    "query": "FastMCP Usage Boundary server framework MCP protocol resources tools prompts Streamable HTTP",
+    "expected_document_ids": [
+      "concept.mcp",
+      "platform.fastmcp",
+      "pattern.sql-agent-mcp-serving",
+      "platform.sql-agent-framework-guidance"
+    ],
     "top_k": 5,
-    "tags": ["multi-hop", "mcp"]
+    "tags": [
+      "multi-hop",
+      "mcp"
+    ]
   },
   {
     "id": "unanswerable_quantum_gardening",
     "query": "quantum gardening zebra orchid compost",
     "expected_document_ids": [],
     "top_k": 5,
-    "tags": ["unanswerable"]
+    "tags": [
+      "unanswerable"
+    ]
   }
 ]

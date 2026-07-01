@@ -54,11 +54,11 @@ python -m pytest
 Expected current output:
 
 ```text
-checked=4 issues=0 ok=true
-dry_run=true documents_seen=4 chunks_planned=13 documents_indexed=0 chunks_indexed=0 documents_changed=4 documents_unchanged=0 documents_removed=0 manifest_uri=none issues=0
-dry_run=false documents_seen=4 chunks_planned=13 documents_indexed=4 chunks_indexed=13 documents_changed=4 documents_unchanged=0 documents_removed=0 manifest_uri=file://.../ingestion_manifest.json issues=0
+checked=19 issues=0 ok=true
+dry_run=true documents_seen=19 chunks_planned=119 documents_indexed=0 chunks_indexed=0 documents_changed=19 documents_unchanged=0 documents_removed=0 manifest_uri=none issues=0
+dry_run=false documents_seen=19 chunks_planned=119 documents_indexed=19 chunks_indexed=119 documents_changed=19 documents_unchanged=0 documents_removed=0 manifest_uri=file://.../ingestion_manifest.json issues=0
 profile=baseline retrieval_mode=lexical cases=6 answerable=5 unanswerable=1 hit_rate=1.000 mrr=1.000 unanswerable_success_rate=1.000 abstention_rate=0.167
-checked=4 stale=0
+checked=19 stale=0
 proposal=YYYY-MM-DD-concept.mcp status=needs-human-review
 ```
 

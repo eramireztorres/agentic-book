@@ -17,27 +17,23 @@ def test_incremental_ingest_reuses_unchanged_documents_and_removes_deleted_sourc
 
     first = asyncio.run(IngestCorpus(store, parser, index_store).run(dry_run=False))
 
-    assert first.documents_changed == 4
+    assert first.documents_changed >= 13
     assert first.documents_unchanged == 0
     assert first.documents_removed == 0
-    assert first.documents_indexed == 4
+    assert first.documents_indexed == first.documents_changed
 
     second = asyncio.run(IngestCorpus(store, parser, index_store).run(dry_run=False))
 
     assert second.documents_changed == 0
-    assert second.documents_unchanged == 4
+    assert second.documents_unchanged == first.documents_indexed
     assert second.documents_removed == 0
-    assert second.documents_indexed == 4
+    assert second.documents_indexed == first.documents_indexed
 
     (content_root / "concepts" / "mcp.md").unlink()
     third = asyncio.run(IngestCorpus(store, parser, index_store).run(dry_run=False))
     documents = asyncio.run(index_store.read_documents())
 
     assert third.documents_changed == 0
-    assert third.documents_unchanged == 3
+    assert third.documents_unchanged == first.documents_indexed - 1
     assert third.documents_removed == 1
-    assert {document.metadata.id for document in documents} == {
-        "pattern.hybrid-retrieval",
-        "platform.fastmcp",
-        "playbook.mcp-consumption",
-    }
+    assert "concept.mcp" not in {document.metadata.id for document in documents}

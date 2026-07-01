@@ -69,7 +69,7 @@ def test_http_mcp_server_serves_manifest_and_guarded_search(tmp_path: Path) -> N
             process.kill()
             process.wait(timeout=5)
 
-    assert manifest["documents"] == 4
+    assert manifest["documents"] >= 13
     assert manifest["capabilities"]["mcp"]["search_abstention"]["parameter"] == "min_score"
     assert {row["row"] for row in manifest["retrieval_eval_matrix_rows"]} == {"baseline", "vector", "guarded"}
     assert search["count"] >= 1

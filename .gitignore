@@ -221,3 +221,6 @@ __marimo__/
 .agentic-book-data/
 # Local prompt scratch files
 prompt_commands_NEVER_COMMIT.txt
+
+# LibreOffice temporary lock files
+.~lock.*#

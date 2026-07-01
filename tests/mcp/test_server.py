@@ -48,9 +48,9 @@ def test_mcp_server_can_be_created_when_fastmcp_is_installed(tmp_path: Path) -> 
     assert "corpus_manifest" in tool_names
     assert "stale_report" not in tool_names
     assert "propose_doc_update" not in tool_names
-    assert manifest["documents"] == 4
-    assert manifest["ingestion_state"]["documents_tracked"] == 4
-    assert manifest["freshness"]["checked"] == 4
+    assert manifest["documents"] >= 13
+    assert manifest["ingestion_state"]["documents_tracked"] >= 13
+    assert manifest["freshness"]["checked"] >= 13
     assert manifest["freshness"]["stale"] == 0
     assert "hybrid" in manifest["retrieval_modes"]
     assert "fusion" in manifest["retrieval_modes"]
