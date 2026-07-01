@@ -8,6 +8,7 @@ services:
     environment:
       AGENTIC_BOOK_CONTENT_ROOT: /app/content
       AGENTIC_BOOK_DATA_DIR: /data
+      AGENTIC_BOOK_VECTOR_STORE: memory
       AGENTIC_BOOK_AUTO_INGEST: "true"
     volumes:
       - agentic-book-data:/data

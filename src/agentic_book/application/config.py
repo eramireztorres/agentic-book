@@ -10,6 +10,7 @@ from typing import Literal, cast
 StorageBackend = Literal["filesystem", "s3"]
 IndexBackend = Literal["json+lexical", "opensearch", "qdrant", "lancedb"]
 EmbeddingProviderName = Literal["none", "openai", "bedrock", "local"]
+VectorStoreBackend = Literal["memory", "lancedb"]
 McpTransport = Literal["stdio", "http"]
 
 
@@ -20,6 +21,7 @@ class RuntimeConfig:
     storage_backend: StorageBackend = "filesystem"
     index_backend: IndexBackend = "json+lexical"
     embedding_provider: EmbeddingProviderName = "none"
+    vector_store: VectorStoreBackend = "memory"
     mcp_transport: McpTransport = "stdio"
     mcp_host: str = "127.0.0.1"
     mcp_port: int = 8000
@@ -52,6 +54,14 @@ class RuntimeConfig:
                     os.getenv("AGENTIC_BOOK_EMBEDDING_PROVIDER", "none"),
                     {"none", "openai", "bedrock", "local"},
                     "AGENTIC_BOOK_EMBEDDING_PROVIDER",
+                ),
+            ),
+            vector_store=cast(
+                VectorStoreBackend,
+                _choice(
+                    os.getenv("AGENTIC_BOOK_VECTOR_STORE", "memory"),
+                    {"memory", "lancedb"},
+                    "AGENTIC_BOOK_VECTOR_STORE",
                 ),
             ),
             mcp_transport=cast(

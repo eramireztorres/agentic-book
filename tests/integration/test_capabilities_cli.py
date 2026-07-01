@@ -9,6 +9,8 @@ def test_cli_capabilities_prints_machine_readable_contract(capsys) -> None:
     capabilities = json.loads(capsys.readouterr().out)
     assert capabilities["name"] == "Agentic Book"
     assert "hybrid" in capabilities["retrieval_modes"]
+    assert capabilities["vector_store"] == "memory"
+    assert "lancedb" in capabilities["supported_vector_stores"]
     assert capabilities["mcp"]["search_abstention"]["parameter"] == "min_score"
     assert {profile["name"] for profile in capabilities["retrieval_eval_profiles"]} == {
         "baseline",

@@ -21,6 +21,9 @@ dev = [
 mcp = [
   "fastmcp==3.1.0",
 ]
+vector-lancedb = [
+  "lancedb==0.29.2",
+]
 
 [project.scripts]
 agentic-book = "agentic_book.interfaces.cli.main:main"

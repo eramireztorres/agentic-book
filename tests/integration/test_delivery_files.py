@@ -19,14 +19,18 @@ def test_ci_workflow_runs_quality_gates_and_docker_build() -> None:
 
 
 def test_docker_runtime_serves_http_mcp_with_auto_ingest() -> None:
+    pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
     dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
     compose = Path("docker-compose.yml").read_text(encoding="utf-8")
     entrypoint = Path("docker/entrypoint.sh").read_text(encoding="utf-8")
 
+    assert "vector-lancedb = [" in pyproject
+    assert "lancedb==0.29.2" in pyproject
     assert 'python -m pip install --root-user-action=ignore ".[mcp]"' in dockerfile
     assert "COPY evals ./evals" in dockerfile
     assert 'ENTRYPOINT ["agentic-book-entrypoint"]' in dockerfile
     assert '"serve-mcp", "--transport", "http"' in dockerfile
+    assert "AGENTIC_BOOK_VECTOR_STORE: memory" in compose
     assert 'AGENTIC_BOOK_AUTO_INGEST: "true"' in compose
     assert '- "8000:8000"' in compose
     assert "validate-content --strict-freshness" in entrypoint

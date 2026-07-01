@@ -6,6 +6,7 @@ from dataclasses import asdict, is_dataclass
 from datetime import date
 from typing import Any
 
+from agentic_book.application.config import VectorStoreBackend
 from agentic_book.application.evaluation_profiles import (
     list_retrieval_eval_matrix_rows,
     list_retrieval_eval_profiles,
@@ -13,12 +14,13 @@ from agentic_book.application.evaluation_profiles import (
 )
 
 
-def build_capabilities_manifest() -> dict[str, Any]:
+def build_capabilities_manifest(active_vector_store: VectorStoreBackend = "memory") -> dict[str, Any]:
     return {
         "name": "Agentic Book",
         "retrieval_modes": ["lexical", "vector", "hybrid", "fusion"],
         "embedding_provider": "local-hashing",
-        "vector_store": "in-memory",
+        "vector_store": active_vector_store,
+        "supported_vector_stores": ["memory", "lancedb"],
         "storage_backend": "filesystem",
         "index_backend": "json+lexical+local-vector",
         "mcp": {
@@ -36,7 +38,7 @@ def build_capabilities_manifest() -> dict[str, Any]:
             "content_object_store": "ContentObjectStore port can be backed by filesystem or S3.",
             "corpus_index_store": "CorpusIndexStore port can be backed by local JSON or managed storage.",
             "embedding_provider": "EmbeddingProvider port can be backed by local hashing, hosted embeddings, or Bedrock/OpenAI.",
-            "vector_store": "VectorStore port can be backed by in-memory local search or OpenSearch/Qdrant/LanceDB.",
+            "vector_store": "VectorStore port can be backed by memory, LanceDB, OpenSearch, Qdrant, or similar stores.",
         },
     }
 

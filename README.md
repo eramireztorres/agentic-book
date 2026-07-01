@@ -15,7 +15,7 @@ This repository now contains the first implementation slice of the roadmap:
 - Runtime configuration from environment variables for local and future cloud wiring.
 - Incremental ingestion state that reuses unchanged documents and removes deleted sources from the index.
 - Retrieval evaluation dataset and CLI baseline for hit rate and MRR.
-- Local deterministic vector retrieval and hybrid lexical/vector retrieval by RRF.
+- Local deterministic vector retrieval, optional LanceDB vector store, and hybrid lexical/vector retrieval by RRF.
 - Retrieval abstention thresholds, JSON eval reports, and enriched MCP corpus manifest.
 - Initial canonical Markdown fixtures under `content/`.
 
@@ -23,6 +23,7 @@ This repository now contains the first implementation slice of the roadmap:
 
 ```bash
 python -m pip install -e ".[dev]"
+python -m pip install -e ".[vector-lancedb]"  # optional persistent local vector store
 ```
 
 ## Useful commands
@@ -81,13 +82,14 @@ AGENTIC_BOOK_DATA_DIR=.agentic-book-data
 AGENTIC_BOOK_STORAGE_BACKEND=filesystem
 AGENTIC_BOOK_INDEX_BACKEND=json+lexical
 AGENTIC_BOOK_EMBEDDING_PROVIDER=none
+AGENTIC_BOOK_VECTOR_STORE=memory
 AGENTIC_BOOK_MCP_TRANSPORT=http
 AGENTIC_BOOK_MCP_HOST=127.0.0.1
 AGENTIC_BOOK_MCP_PORT=8000
 AGENTIC_BOOK_AUTO_INGEST=false
 ```
 
-The only implemented local backends are `filesystem` and `json+lexical`; the explicit settings make later S3/OpenSearch/Qdrant wiring a configuration and adapter problem rather than a domain rewrite.
+The implemented local content/index backends are `filesystem` and `json+lexical`. Vector search supports `AGENTIC_BOOK_VECTOR_STORE=memory` by default and optional `AGENTIC_BOOK_VECTOR_STORE=lancedb` after installing `.[vector-lancedb]`. The explicit settings make later S3/OpenSearch/Qdrant wiring a configuration and adapter problem rather than a domain rewrite.
 
 ## Incremental ingestion
 
@@ -101,7 +103,15 @@ The current local runtime supports three retrieval modes without external servic
 - `vector`: deterministic local hashing embeddings plus in-memory vector search.
 - `hybrid`: lexical and vector rankings fused with Reciprocal Rank Fusion.
 
-The vector adapter is intentionally local and replaceable. It exists to prove the domain/application contracts before adding LanceDB, Qdrant, OpenSearch, Bedrock, OpenAI embeddings, or rerankers.
+The default vector adapter is intentionally local and replaceable. `memory` is deterministic and CI-friendly; `lancedb` persists a local vector table under the configured data directory and is useful for local experiments closer to a real vector database. The same port can later be backed by Qdrant, OpenSearch, Bedrock/OpenAI embeddings, or rerankers.
+
+To use LanceDB locally:
+
+```bash
+python -m pip install -e ".[vector-lancedb]"
+AGENTIC_BOOK_VECTOR_STORE=lancedb agentic-book --content-root content --data-dir .agentic-book-data ingest
+AGENTIC_BOOK_VECTOR_STORE=lancedb agentic-book --content-root content --data-dir .agentic-book-data search "hybrid retrieval" --retrieval-mode vector --top-k 3
+```
 
 ## Retrieval evaluation
 
@@ -116,7 +126,7 @@ The command reports answerable `hit_rate`, `mean_reciprocal_rank`, unanswerable 
 
 `eval-matrix` runs the standard baseline, vector, and guarded rows and writes one aggregate JSON report. Use `--row baseline`, `--row vector`, or `--row guarded` to run a subset while calibrating. CI runs `eval-matrix` plus a latest guarded report so retrieval quality regressions are caught before adding external vector stores, rerankers, or GraphRAG.
 
-`agentic-book capabilities --json` prints the same machine-readable capability contract without starting MCP. It includes retrieval modes, MCP tools/resources/prompts, abstention semantics, evaluation profiles, matrix rows, and cloud-ready adapter boundaries.
+`agentic-book capabilities --json` prints the same machine-readable capability contract without starting MCP. It includes retrieval modes, supported vector stores, the active vector store, MCP tools/resources/prompts, abstention semantics, evaluation profiles, matrix rows, and cloud-ready adapter boundaries.
 
 The MCP `corpus_manifest` includes ingestion state, freshness summary, active retrieval backends, the shared capability contract, available evaluation profiles, matrix rows, a summary of `evals/reports/latest.json`, and a summary of `evals/reports/matrix.json` when present.
 

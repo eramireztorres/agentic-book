@@ -146,6 +146,7 @@ def main(argv: list[str] | None = None) -> int:
         storage_backend=env_config.storage_backend,
         index_backend=env_config.index_backend,
         embedding_provider=env_config.embedding_provider,
+        vector_store=env_config.vector_store,
         mcp_transport=args.transport if hasattr(args, "transport") else env_config.mcp_transport,
         mcp_host=args.host if hasattr(args, "host") else env_config.mcp_host,
         mcp_port=args.port if hasattr(args, "port") else env_config.mcp_port,
@@ -201,7 +202,9 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         filters = _filters_from_args(args)
         query = RetrievalQuery(query=args.query, top_k=args.top_k, retrieval_mode=args.retrieval_mode, filters=filters)
-        search_corpus = asyncio.run(build_local_search_corpus(chunks))
+        search_corpus = asyncio.run(
+            build_local_search_corpus(chunks, vector_store_backend=config.vector_store, data_dir=config.data_dir)
+        )
         results = asyncio.run(search_corpus.run(query))
         _print_results(results)
         return 0
@@ -246,7 +249,9 @@ def main(argv: list[str] | None = None) -> int:
         try:
             chunks = asyncio.run(index_store.read_chunks())
             cases = load_retrieval_eval_cases(Path(args.dataset))
-            search_corpus = asyncio.run(build_local_search_corpus(chunks))
+            search_corpus = asyncio.run(
+                build_local_search_corpus(chunks, vector_store_backend=config.vector_store, data_dir=config.data_dir)
+            )
         except FileNotFoundError as exc:
             print(f"ERROR: {exc}")
             return 1
@@ -303,7 +308,9 @@ def main(argv: list[str] | None = None) -> int:
         try:
             chunks = asyncio.run(index_store.read_chunks())
             cases = load_retrieval_eval_cases(Path(args.dataset))
-            search_corpus = asyncio.run(build_local_search_corpus(chunks))
+            search_corpus = asyncio.run(
+                build_local_search_corpus(chunks, vector_store_backend=config.vector_store, data_dir=config.data_dir)
+            )
         except FileNotFoundError as exc:
             print(f"ERROR: {exc}")
             return 1
@@ -418,7 +425,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "capabilities":
-        capabilities = build_capabilities_manifest()
+        capabilities = build_capabilities_manifest(active_vector_store=config.vector_store)
         if args.json:
             print(json.dumps(_jsonable(capabilities), indent=2, sort_keys=True))
             return 0

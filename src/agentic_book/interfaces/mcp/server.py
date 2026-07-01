@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from agentic_book.application.capabilities import build_capabilities_manifest
+from agentic_book.application.config import RuntimeConfig
 from agentic_book.application.documents import GetDocument
 from agentic_book.application.freshness import BuildStaleReport
 from agentic_book.application.fusion import FusionSearchCorpus
@@ -25,6 +26,7 @@ def create_mcp_server(content_root: str = "content", data_dir: str = ".agentic-b
     except ImportError as exc:
         raise RuntimeError('FastMCP is not installed. Install with `python -m pip install -e ".[mcp]"`.') from exc
 
+    env_config = RuntimeConfig.from_env()
     index_store = build_index_store(data_dir)
     mcp = FastMCP(
         name="AgenticBook",
@@ -47,7 +49,9 @@ def create_mcp_server(content_root: str = "content", data_dir: str = ".agentic-b
         retrieval_query = RetrievalQuery(
             query=query, top_k=top_k, retrieval_mode=_retrieval_mode(retrieval_mode), filters=filters
         )
-        search_corpus = await build_local_search_corpus(chunks)
+        search_corpus = await build_local_search_corpus(
+            chunks, vector_store_backend=env_config.vector_store, data_dir=data_dir
+        )
         results = await search_corpus.run(retrieval_query)
         max_score = results[0].score if results else 0.0
         reason = _abstention_reason(results_found=bool(results), max_score=max_score, min_score=min_score)
@@ -108,7 +112,7 @@ def create_mcp_server(content_root: str = "content", data_dir: str = ".agentic-b
         freshness_report = await BuildStaleReport(index_store).run()
         eval_summary = _latest_eval_summary(Path("evals/reports/latest.json"))
         matrix_summary = _latest_eval_matrix_summary(Path("evals/reports/matrix.json"))
-        capabilities = build_capabilities_manifest()
+        capabilities = build_capabilities_manifest(active_vector_store=env_config.vector_store)
         return {
             "name": "Agentic Book",
             "documents": len(documents),
