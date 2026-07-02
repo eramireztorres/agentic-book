@@ -68,6 +68,15 @@ The HTTP endpoint is served at:
 http://127.0.0.1:8000/mcp
 ```
 
+Before wiring an MCP client, confirm the executable and index exist:
+
+```bash
+test -x /home/erick/repo/agentic-book/.venv/bin/agentic-book
+agentic-book --data-dir .agentic-book-data get-document playbook.sql-agent-enterprise
+```
+
+If the first command fails, run the Quick Start install steps first. If the second command fails with an index error, run the ingest command again.
+
 ## Connect From Codex
 
 Codex supports MCP servers through `config.toml`. The Codex CLI and IDE extension share this configuration. For a project-scoped setup, create or edit `.codex/config.toml` in this repository after the project is trusted.
@@ -98,6 +107,18 @@ codex mcp add agentic_book -- /home/erick/repo/agentic-book/.venv/bin/agentic-bo
   --data-dir /home/erick/repo/agentic-book/.agentic-book-data \
   serve-mcp --transport stdio
 ```
+
+If Codex reports `MCP startup failed: No such file or directory`, the configured `command` path does not exist from Codex's point of view. Recreate the environment and reinstall the package:
+
+```bash
+cd /home/erick/repo/agentic-book
+python -m venv .venv
+.venv/bin/python -m pip install -U pip
+.venv/bin/python -m pip install -e ".[mcp]"
+.venv/bin/agentic-book --content-root content --data-dir .agentic-book-data ingest
+```
+
+Then start a new Codex session and run `/mcp` again.
 
 ## Connect From Claude Code
 
