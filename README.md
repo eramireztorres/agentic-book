@@ -1,80 +1,236 @@
 # agentic-book
-Updated and agentic-friendly book on LLM agent design and related topics.
 
-## Current implementation status
+Agentic Book is a local, agent-friendly knowledge scaffold for LLM agent architecture topics. It stores curated Markdown documents under `content/`, builds a local retrieval index, and exposes the corpus through a read-only MCP server for agents such as Codex, Claude Code, IDE assistants, or custom multi-agent systems.
 
-This repository now contains the first implementation slice of the roadmap:
+The current corpus includes curated material about MCP, FastMCP, retrieval patterns, and an actionable enterprise playbook for making SQL databases consumable by LLM agents.
 
-- Python package scaffold under `src/agentic_book`.
-- Domain models and ports for content objects, documents, chunks, and retrieval contracts.
-- Local filesystem content store.
-- Markdown frontmatter parser for the project's constrained metadata format.
-- Corpus validation, dry-run ingestion, freshness reporting, and local update proposal use cases.
-- CLI entry point for validation, ingestion, retrieval, freshness review, and MCP serving.
-- GitHub Actions CI and Docker runtime for local HTTP MCP deployment.
-- Runtime configuration from environment variables for local and future cloud wiring.
-- Incremental ingestion state that reuses unchanged documents and removes deleted sources from the index.
-- Retrieval evaluation dataset and CLI baseline for hit rate and MRR.
-- Local deterministic vector retrieval, optional LanceDB vector store, and hybrid lexical/vector retrieval by RRF.
-- Retrieval abstention thresholds, JSON eval reports, and enriched MCP corpus manifest.
-- Initial canonical Markdown fixtures under `content/`.
+## Quick Start
 
-## Local setup
+These steps take a fresh checkout to a running MCP server.
 
 ```bash
-python -m pip install -e ".[dev]"
-python -m pip install -e ".[vector-lancedb]"  # optional persistent local vector store
+git clone git@github.com:eramireztorres/agentic-book.git
+cd agentic-book
+
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -U pip
+python -m pip install -e ".[dev,mcp]"
 ```
 
-## Useful commands
+Validate the curated Markdown corpus:
 
 ```bash
-agentic-book --content-root content validate-content
 agentic-book --content-root content validate-content --strict-freshness
-agentic-book --content-root content ingest --dry-run
-agentic-book --content-root content ingest
-agentic-book search "Streamable HTTP MCP" --top-k 3
-agentic-book search "hybrid retrieval" --retrieval-mode vector --top-k 3
-agentic-book search "hybrid retrieval" --retrieval-mode hybrid --top-k 3
-agentic-book fusion-search --query "Streamable HTTP" --query "MCP resources" --final-top-k 3
-agentic-book get-document concept.mcp
-agentic-book eval-retrieval
-agentic-book eval-matrix
-agentic-book capabilities --json
-agentic-book stale-report
-agentic-book propose-doc-update concept.mcp --reason "Possible upstream protocol change"
-agentic-book serve-mcp --transport stdio
-docker compose up --build
-ruff check src tests
-ruff format --check src tests
-mypy src
-python -m pytest
 ```
 
-Expected current output:
+Expected output today:
 
 ```text
 checked=19 issues=0 ok=true
-dry_run=true documents_seen=19 chunks_planned=119 documents_indexed=0 chunks_indexed=0 documents_changed=19 documents_unchanged=0 documents_removed=0 manifest_uri=none issues=0
-dry_run=false documents_seen=19 chunks_planned=119 documents_indexed=19 chunks_indexed=119 documents_changed=19 documents_unchanged=0 documents_removed=0 manifest_uri=file://.../ingestion_manifest.json issues=0
-profile=baseline retrieval_mode=lexical cases=6 answerable=5 unanswerable=1 hit_rate=1.000 mrr=1.000 unanswerable_success_rate=1.000 abstention_rate=0.167
-checked=19 stale=0
-proposal=YYYY-MM-DD-concept.mcp status=needs-human-review
 ```
 
-## Freshness workflow
+Build the local index:
 
-Canonical documents can include freshness metadata such as `source_urls`, `source_type`, `last_checked`, `review_after`, and `change_frequency`. Use strict validation in CI once the corpus is fully migrated:
+```bash
+agentic-book --content-root content --data-dir .agentic-book-data ingest
+```
+
+Expected output today:
+
+```text
+dry_run=false documents_seen=19 chunks_planned=119 documents_indexed=19 chunks_indexed=119 documents_changed=19 documents_unchanged=0 documents_removed=0 manifest_uri=file://.../ingestion_manifest.json issues=0
+```
+
+Try retrieval before starting MCP:
+
+```bash
+agentic-book --data-dir .agentic-book-data search "SQL agents MCP governance" --retrieval-mode hybrid --top-k 5
+agentic-book --data-dir .agentic-book-data fusion-search --query "SQL agent security" --query "MCP data server" --final-top-k 5
+agentic-book --data-dir .agentic-book-data get-document playbook.sql-agent-enterprise
+```
+
+Start the MCP server over stdio:
+
+```bash
+agentic-book --content-root content --data-dir .agentic-book-data serve-mcp --transport stdio
+```
+
+For local HTTP testing instead:
+
+```bash
+agentic-book --content-root content --data-dir .agentic-book-data serve-mcp --transport http --host 127.0.0.1 --port 8000
+```
+
+The HTTP endpoint is served at:
+
+```text
+http://127.0.0.1:8000/mcp
+```
+
+## Connect From Codex
+
+Codex supports MCP servers through `config.toml`. The Codex CLI and IDE extension share this configuration. For a project-scoped setup, create or edit `.codex/config.toml` in this repository after the project is trusted.
+
+Use absolute paths so Codex can launch the server even when its process environment does not have your virtualenv on `PATH`:
+
+```toml
+[mcp_servers.agentic_book]
+command = "/home/erick/repo/agentic-book/.venv/bin/agentic-book"
+args = [
+  "--content-root", "/home/erick/repo/agentic-book/content",
+  "--data-dir", "/home/erick/repo/agentic-book/.agentic-book-data",
+  "serve-mcp",
+  "--transport", "stdio",
+]
+cwd = "/home/erick/repo/agentic-book"
+startup_timeout_sec = 20
+tool_timeout_sec = 60
+```
+
+Then restart Codex or open a new Codex session and run `/mcp` in the Codex TUI to confirm that `agentic_book` is connected.
+
+You can also add the server through the Codex CLI using the same command shape:
+
+```bash
+codex mcp add agentic_book -- /home/erick/repo/agentic-book/.venv/bin/agentic-book \
+  --content-root /home/erick/repo/agentic-book/content \
+  --data-dir /home/erick/repo/agentic-book/.agentic-book-data \
+  serve-mcp --transport stdio
+```
+
+## Connect From Claude Code
+
+Claude Code can consume the same stdio MCP server. If you use a project MCP config, add a server entry like this, using absolute paths:
+
+```json
+{
+  "mcpServers": {
+    "agentic-book": {
+      "command": "/home/erick/repo/agentic-book/.venv/bin/agentic-book",
+      "args": [
+        "--content-root", "/home/erick/repo/agentic-book/content",
+        "--data-dir", "/home/erick/repo/agentic-book/.agentic-book-data",
+        "serve-mcp",
+        "--transport", "stdio"
+      ]
+    }
+  }
+}
+```
+
+If you prefer Claude Code's CLI MCP manager, use the equivalent `claude mcp` command for your installed version and pass the same executable and arguments shown above. Restart Claude Code after changing MCP configuration.
+
+## What Agents Should Call
+
+The MCP server is read-only. It exposes:
+
+| MCP surface | Purpose |
+|---|---|
+| `corpus_manifest` tool | Inspect corpus size, freshness, retrieval modes, eval summaries, tools, resources, and prompts. |
+| `search` tool | Retrieve ranked chunks with `lexical`, `vector`, or `hybrid` mode, optional filters, and optional `min_score` abstention. |
+| `fusion_search` tool | Send multiple subqueries and merge results with Reciprocal Rank Fusion. |
+| `get_document` tool | Fetch a complete curated document by canonical `document_id`. |
+| `agentic-book://manifest` resource | Read the manifest as an MCP resource. |
+| `agentic-book://documents/{document_id}` resource | Read a complete document as an MCP resource. |
+| `summarize_with_citations` prompt | Ask the agent to summarize a document with citations. |
+| `compare_concepts` prompt | Ask the agent to compare two concepts using retrieval first. |
+
+Recommended agent flow:
+
+```text
+1. Call corpus_manifest.
+2. Use search or fusion_search with a focused query.
+3. Call get_document for the strongest evidence.
+4. Answer with document ids, section names, freshness, and limitations.
+```
+
+For weak matches, use `search` with `min_score`. If the response includes `abstained=true`, the agent should not answer from that context unless it intentionally lowers the threshold or asks for better documentation.
+
+## Add New Curated Markdown
+
+Add curated files under `content/`, not only under `docs/`. The `docs/` directory can hold long human-facing sources; `content/` is the agent-consumable corpus.
+
+Common folders:
+
+```text
+content/concepts/
+content/patterns/
+content/playbooks/
+content/platforms/
+content/case-studies/
+content/checklists/
+content/risks/
+```
+
+Use this frontmatter shape:
+
+```markdown
+---
+id: "pattern.example"
+title: "Example Pattern"
+type: "pattern"
+domain: ["agents", "mcp", "enterprise-data"]
+audience: ["architect", "engineer", "agent"]
+maturity: "production"
+status: "reviewed"
+last_reviewed: "2026-07-02"
+source_quality: "curated"
+source_urls:
+  - "docs/path/to/source.md"
+source_type: "derived"
+upstream_version: "2026-07-02"
+last_checked: "2026-07-02"
+review_after: "2026-10-02"
+change_frequency: "high"
+supersedes: []
+superseded_by: null
+tags: ["mcp", "agents"]
+related:
+  - "concept.mcp"
+---
+
+# Example Pattern
+
+Write one coherent, self-contained document. The ingestor will split it into section-aware chunks.
+```
+
+Rules that validation enforces:
+
+- `id` must be unique.
+- `related` ids must exist in the corpus.
+- `type`, `maturity`, `status`, `source_quality`, `source_type`, and `change_frequency` must use supported values.
+- Freshness fields are required when running `--strict-freshness`.
+- Non-internal sources need at least one `source_urls` entry.
+
+After adding or replacing Markdown:
 
 ```bash
 agentic-book --content-root content validate-content --strict-freshness
+agentic-book --content-root content ingest --dry-run
+agentic-book --content-root content --data-dir .agentic-book-data ingest
+agentic-book --data-dir .agentic-book-data eval-matrix
 ```
 
-`stale-report` reads the generated local index and reports documents whose `review_after` date has elapsed. `propose-doc-update` creates local artifacts under `.proposals/documentation-updates/`; these are review inputs, not canonical content changes.
+If retrieval rankings changed intentionally, update `evals/retrieval/ground_truth.json` and rerun `eval-matrix`.
 
-## Runtime configuration
+## Docker HTTP MCP
 
-The local CLI and container read these environment variables through `RuntimeConfig`:
+Docker is useful when you want an HTTP MCP endpoint without installing the package in your host environment.
+
+```bash
+docker compose up --build
+```
+
+The compose service:
+
+- validates and ingests content at startup with `AGENTIC_BOOK_AUTO_INGEST=true`;
+- stores generated indexes in the `agentic-book-data` Docker volume;
+- serves MCP over HTTP at `http://127.0.0.1:8000/mcp`.
+
+## Runtime Configuration
+
+The CLI and container read these environment variables through `RuntimeConfig`:
 
 ```bash
 AGENTIC_BOOK_CONTENT_ROOT=content
@@ -83,88 +239,72 @@ AGENTIC_BOOK_STORAGE_BACKEND=filesystem
 AGENTIC_BOOK_INDEX_BACKEND=json+lexical
 AGENTIC_BOOK_EMBEDDING_PROVIDER=none
 AGENTIC_BOOK_VECTOR_STORE=memory
-AGENTIC_BOOK_MCP_TRANSPORT=http
+AGENTIC_BOOK_MCP_TRANSPORT=stdio
 AGENTIC_BOOK_MCP_HOST=127.0.0.1
 AGENTIC_BOOK_MCP_PORT=8000
 AGENTIC_BOOK_AUTO_INGEST=false
 ```
 
-The implemented local content/index backends are `filesystem` and `json+lexical`. Vector search supports `AGENTIC_BOOK_VECTOR_STORE=memory` by default and optional `AGENTIC_BOOK_VECTOR_STORE=lancedb` after installing `.[vector-lancedb]`. The explicit settings make later S3/OpenSearch/Qdrant wiring a configuration and adapter problem rather than a domain rewrite.
+Implemented local backends:
 
-## Incremental ingestion
-
-`agentic-book ingest` writes `ingestion_state.json` next to the generated index. On subsequent runs it compares source hashes, reuses unchanged documents and chunks, and drops deleted Markdown sources from the generated index. The command reports `documents_changed`, `documents_unchanged`, and `documents_removed` for operational visibility.
-
-## Retrieval modes
-
-The current local runtime supports three retrieval modes without external services:
-
-- `lexical`: deterministic BM25-like lexical baseline.
-- `vector`: deterministic local hashing embeddings plus in-memory vector search.
-- `hybrid`: lexical and vector rankings fused with Reciprocal Rank Fusion.
-
-The default vector adapter is intentionally local and replaceable. `memory` is deterministic and CI-friendly; `lancedb` persists a local vector table under the configured data directory and is useful for local experiments closer to a real vector database. The same port can later be backed by Qdrant, OpenSearch, Bedrock/OpenAI embeddings, or rerankers.
+- content store: `filesystem`;
+- index store: `json+lexical`;
+- vector store: `memory` by default, optional `lancedb`.
 
 To use LanceDB locally:
 
 ```bash
 python -m pip install -e ".[vector-lancedb]"
 AGENTIC_BOOK_VECTOR_STORE=lancedb agentic-book --content-root content --data-dir .agentic-book-data ingest
-AGENTIC_BOOK_VECTOR_STORE=lancedb agentic-book --content-root content --data-dir .agentic-book-data search "hybrid retrieval" --retrieval-mode vector --top-k 3
+AGENTIC_BOOK_VECTOR_STORE=lancedb agentic-book --data-dir .agentic-book-data search "hybrid retrieval" --retrieval-mode vector --top-k 3
 ```
 
-## Retrieval evaluation
+The domain and application layers are written behind ports so later S3, OpenSearch, Qdrant, Bedrock, OpenAI embeddings, or rerankers can be added as infrastructure adapters rather than domain rewrites.
 
-The baseline dataset lives at `evals/retrieval/ground_truth.json`. After ingesting content, run:
+## Retrieval Evaluation
+
+The baseline dataset lives at `evals/retrieval/ground_truth.json`.
 
 ```bash
-agentic-book --content-root content --data-dir .agentic-book-data eval-matrix --write-report evals/reports/matrix.json
-agentic-book --content-root content --data-dir .agentic-book-data eval-retrieval --profile guarded --write-report evals/reports/latest.json
+agentic-book --data-dir .agentic-book-data eval-matrix --write-report evals/reports/matrix.json
+agentic-book --data-dir .agentic-book-data eval-retrieval --profile guarded --write-report evals/reports/latest.json
 ```
 
-The command reports answerable `hit_rate`, `mean_reciprocal_rank`, unanswerable success rate, and abstention rate. Use `--profile baseline` for the default lexical quality gate, `--profile guarded` for hybrid retrieval with abstention and unanswerable-case gating, and `--profile custom` when explicitly calibrating modes or thresholds. Individual flags such as `--retrieval-mode`, `--min-score`, `--min-hit-rate`, `--min-mrr`, and `--min-unanswerable-success` override profile defaults.
+`eval-matrix` runs the standard baseline, vector, and guarded profiles. It reports hit rate, mean reciprocal rank, unanswerable success rate, and abstention rate. CI uses these checks to catch retrieval quality regressions.
 
-`eval-matrix` runs the standard baseline, vector, and guarded rows and writes one aggregate JSON report. Use `--row baseline`, `--row vector`, or `--row guarded` to run a subset while calibrating. CI runs `eval-matrix` plus a latest guarded report so retrieval quality regressions are caught before adding external vector stores, rerankers, or GraphRAG.
+## Freshness Workflow
 
-`agentic-book capabilities --json` prints the same machine-readable capability contract without starting MCP. It includes retrieval modes, supported vector stores, the active vector store, MCP tools/resources/prompts, abstention semantics, evaluation profiles, matrix rows, and cloud-ready adapter boundaries.
-
-The MCP `corpus_manifest` includes ingestion state, freshness summary, active retrieval backends, the shared capability contract, available evaluation profiles, matrix rows, a summary of `evals/reports/latest.json`, and a summary of `evals/reports/matrix.json` when present.
-
-The MCP `search` tool also accepts `min_score`. When no candidates are found, or when the best candidate is below that threshold, it returns no visible results and includes `abstained=true`, `reason` (`"no_results"` or `"below_min_score"`), `max_score`, `min_score`, and `candidate_count`. Agents should treat this as an instruction to avoid answering from weak context and either ask for better documentation, lower the threshold intentionally, or escalate to a documentation update workflow.
-
-## Docker and CI
-
-Local HTTP MCP runtime:
+Canonical documents include freshness metadata such as `source_urls`, `source_type`, `last_checked`, `review_after`, and `change_frequency`.
 
 ```bash
-docker compose up --build
+agentic-book --data-dir .agentic-book-data stale-report
+agentic-book --data-dir .agentic-book-data propose-doc-update concept.mcp --reason "Possible upstream protocol change"
 ```
 
-The container validates freshness metadata and ingests canonical content at startup when `AGENTIC_BOOK_AUTO_INGEST=true`. It serves MCP over HTTP on port `8000` and stores generated indexes in the `agentic-book-data` volume.
+`propose-doc-update` creates local review artifacts under `.proposals/documentation-updates/`. It does not modify canonical content directly.
 
-The GitHub Actions workflow in `.github/workflows/ci.yml` runs Ruff linting and format checks, Mypy type checks, strict content validation, local index build, runtime capability inspection, retrieval matrix evaluation, latest guarded report generation, tests, MCP surface inspection, and Docker image build without publishing. This keeps the image ready for a later ECR/Fargate workflow while avoiding registry credentials in the initial CI.
-
-## MCP support
-
-The MCP server is optional and requires the `mcp` extra:
+## Development Checks
 
 ```bash
-python -m pip install -e ".[mcp]"
-agentic-book --content-root content ingest
-agentic-book serve-mcp --transport stdio
+ruff check src tests
+ruff format --check src tests
+mypy src
+python -m pytest
 ```
 
-For local HTTP testing:
+The current test suite includes an HTTP MCP smoke test that starts the server on a free local port and calls `corpus_manifest` plus guarded `search` through a FastMCP client. Tests that require `fastmcp` are skipped if the `mcp` extra is not installed.
 
-```bash
-agentic-book --content-root content ingest
-agentic-book serve-mcp --transport http --host 127.0.0.1 --port 8000
-```
+## Current Implementation Status
 
-The test suite includes an HTTP MCP smoke test that starts this server on a free local port and calls `corpus_manifest` plus guarded `search` through the FastMCP client.
+Implemented today:
 
-To inspect the MCP surface after installing the extra:
-
-```bash
-fastmcp list src/agentic_book/interfaces/mcp/server.py --resources --prompts --json
-```
+- Python package scaffold under `src/agentic_book`.
+- Domain models and ports for content objects, documents, chunks, retrieval, embeddings, and vector stores.
+- Local filesystem content store.
+- Markdown frontmatter parser for the constrained metadata format.
+- Corpus validation, dry-run ingestion, incremental ingestion, freshness reporting, and local update proposal use cases.
+- CLI entry point for validation, ingestion, retrieval, evaluation, freshness review, and MCP serving.
+- GitHub Actions CI and Docker runtime for local HTTP MCP deployment.
+- Local deterministic vector retrieval, optional LanceDB vector store, and hybrid lexical/vector retrieval by RRF.
+- Retrieval abstention thresholds, JSON eval reports, and enriched MCP corpus manifest.
+- Curated canonical Markdown under `content/`, including the SQL-agent enterprise playbook corpus.
