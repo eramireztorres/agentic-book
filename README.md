@@ -168,6 +168,36 @@ Recommended agent flow:
 
 For weak matches, use `search` with `min_score`. If the response includes `abstained=true`, the agent should not answer from that context unless it intentionally lowers the threshold or asks for better documentation.
 
+## Smoke Test Prompts
+
+After connecting the MCP server from Codex, Claude Code, or another MCP client, try these prompts to verify the main MCP surfaces:
+
+```text
+Use the agentic_book MCP server. Call corpus_manifest and tell me how many documents and chunks are indexed.
+```
+
+```text
+Use agentic_book. Search for "SQL agents MCP governance" and return the top 5 document_ids with short reasons.
+```
+
+```text
+Use agentic_book. Run fusion_search with these subqueries: "SQL agent security", "MCP data server", "semantic layer BI". Then call get_document for the strongest result and summarize it.
+```
+
+```text
+Use agentic_book. Retrieve playbook.sql-agent-enterprise and summarize the recommendations for executives, architects, and developers.
+```
+
+```text
+Use agentic_book. What risks should an enterprise consider before exposing a SQL database to LLM agents? Cite the document_ids used.
+```
+
+```text
+Use agentic_book. Search for "quantum gardening zebra orchid compost" with min_score 999 and explain whether the server abstained.
+```
+
+These prompts exercise `corpus_manifest`, `search`, `fusion_search`, `get_document`, and search abstention.
+
 ## Add New Curated Markdown
 
 Add curated files under `content/`, not only under `docs/`. The `docs/` directory can hold long human-facing sources; `content/` is the agent-consumable corpus.
@@ -182,7 +212,53 @@ content/platforms/
 content/case-studies/
 content/checklists/
 content/risks/
+content/glossary/
+content/standards/
+content/tools/
 ```
+
+Directory choice is mostly for humans and maintainers. Retrieval mainly uses each document's frontmatter: `type`, `domain`, `tags`, `related`, and the document text. Keep the directory and `type` aligned so the corpus stays easy to review.
+
+Use these conventions:
+
+| Directory | Use for |
+|---|---|
+| `content/playbooks/` | End-to-end guides, operating models, roadmaps, handoffs. |
+| `content/patterns/` | Reusable architecture, retrieval, security, ingestion, deployment, or governance patterns. |
+| `content/checklists/` | Readiness checks, pre-launch checks, recurring operations checks. |
+| `content/risks/` | Risks, failure modes, mitigations, controls, threat scenarios. |
+| `content/case-studies/` | Concrete examples, reference implementations, scenario walkthroughs. |
+| `content/concepts/` | Core definitions that other documents depend on. |
+| `content/platforms/` | Vendor, framework, SDK, or runtime guidance. |
+| `content/glossary/` | Terms and short definitions. |
+| `content/standards/` | Rules, policies, normative criteria, if-then rules. |
+| `content/tools/` | Tool contracts, MCP tool descriptions, API wrapper contracts. |
+
+### Split Source Documents Semantically
+
+Do not turn a long PDF into one huge Markdown, and do not split it by page ranges. Split it into semantic units an agent would naturally retrieve.
+
+Good split:
+
+```text
+docs/source-playbook.pdf
+content/playbooks/source-overview.md
+content/patterns/source-ingestion-pattern.md
+content/patterns/source-security-pattern.md
+content/checklists/source-readiness.md
+content/risks/source-risk-register.md
+content/glossary/source-glossary.md
+```
+
+Bad split:
+
+```text
+content/playbooks/source-pages-1-to-5.md
+content/playbooks/source-pages-6-to-10.md
+content/playbooks/source-pages-11-to-15.md
+```
+
+A good curated Markdown file should have one clear purpose, enough context to stand alone, and section headings that make the generated chunks meaningful. As a rule of thumb, prefer 500-1,500 words per document, but let semantic boundaries win over exact length.
 
 Use this frontmatter shape:
 
@@ -234,6 +310,8 @@ agentic-book --data-dir .agentic-book-data eval-matrix
 ```
 
 If retrieval rankings changed intentionally, update `evals/retrieval/ground_truth.json` and rerun `eval-matrix`.
+
+If an MCP client such as Codex or Claude Code already has the stdio server running, start a new client session after re-ingesting so it launches a fresh MCP process over the updated index. For HTTP/Docker, restart the service after changing content unless your deployment explicitly runs ingestion on startup.
 
 ## Docker HTTP MCP
 
