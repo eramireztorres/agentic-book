@@ -2,7 +2,7 @@
 
 Agentic Book is a local, agent-friendly knowledge scaffold for LLM agent architecture topics. It stores curated Markdown documents under `content/`, builds a local retrieval index, and exposes the corpus through a read-only MCP server for agents such as Codex, Claude Code, IDE assistants, or custom multi-agent systems.
 
-The current corpus includes curated material about MCP, FastMCP, retrieval patterns, and an actionable enterprise playbook for making SQL databases consumable by LLM agents.
+The current corpus includes curated material about MCP, FastMCP, retrieval patterns, an actionable enterprise playbook for making SQL databases consumable by LLM agents, and a Capa 1 Data Layer playbook for governed enterprise knowledge ingestion.
 
 ## Quick Start
 
@@ -27,7 +27,7 @@ agentic-book --content-root content validate-content --strict-freshness
 Expected output today:
 
 ```text
-checked=19 issues=0 ok=true
+checked=35 issues=0 ok=true
 ```
 
 Build the local index:
@@ -39,7 +39,7 @@ agentic-book --content-root content --data-dir .agentic-book-data ingest
 Expected output today:
 
 ```text
-dry_run=false documents_seen=19 chunks_planned=119 documents_indexed=19 chunks_indexed=119 documents_changed=19 documents_unchanged=0 documents_removed=0 manifest_uri=file://.../ingestion_manifest.json issues=0
+dry_run=false documents_seen=35 chunks_planned=244 documents_indexed=35 chunks_indexed=244 documents_changed=35 documents_unchanged=0 documents_removed=0 manifest_uri=file://.../ingestion_manifest.json issues=0
 ```
 
 Try retrieval before starting MCP:

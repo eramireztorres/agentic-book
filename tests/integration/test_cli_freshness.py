@@ -7,7 +7,7 @@ def test_cli_validate_strict_freshness_accepts_content_fixtures(capsys) -> None:
     assert main(["--content-root", "content", "validate-content", "--strict-freshness"]) == 0
 
     output = capsys.readouterr().out
-    assert "checked=19" in output
+    assert "checked=35" in output
     assert "ok=true" in output
 
 
@@ -18,7 +18,7 @@ def test_cli_stale_report_and_update_proposal(tmp_path: Path, capsys) -> None:
 
     assert main(["--data-dir", str(data_dir), "stale-report"]) == 0
     stale_output = capsys.readouterr().out
-    assert "checked=19" in stale_output
+    assert "checked=35" in stale_output
     assert "stale=0" in stale_output
 
     assert (
