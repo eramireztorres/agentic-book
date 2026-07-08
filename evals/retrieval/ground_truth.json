@@ -74,5 +74,375 @@
     "tags": [
       "unanswerable"
     ]
+  },
+  {
+    "id": "data_layer_playbook_overview",
+    "query": "Capa 1 Data Layer playbook scope maturity levels governed enterprise knowledge ingestion",
+    "expected_document_ids": [
+      "playbook.data-layer",
+      "pattern.data-layer-deployment-maturity"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "data-layer",
+      "playbook"
+    ]
+  },
+  {
+    "id": "data_layer_tool_api_vs_rag",
+    "query": "Arbol de decision Capa 1 dato exacto fresco transaccional usar Tool API con as_of texto documental usar RAG",
+    "expected_document_ids": [
+      "pattern.data-layer-decision-tree",
+      "standard.data-layer-if-then-rules"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "data-layer",
+      "access-pattern"
+    ]
+  },
+  {
+    "id": "data_layer_six_golden_rules",
+    "query": "Arbol de decision Capa 1 Seis reglas de oro G1 G2 G3 G4 G5 G6 no vectorices el core chunk_id abstiene",
+    "expected_document_ids": [
+      "pattern.data-layer-decision-tree",
+      "standard.data-layer-if-then-rules"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "data-layer",
+      "rules"
+    ]
+  },
+  {
+    "id": "data_layer_maturity_modes",
+    "query": "Startup Crecimiento Enterprise Legacy Bridge data layer deployment maturity modes",
+    "expected_document_ids": [
+      "pattern.data-layer-deployment-maturity",
+      "playbook.data-layer"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "data-layer",
+      "maturity"
+    ]
+  },
+  {
+    "id": "data_layer_governance_compliance",
+    "query": "GDPR EU AI Act sovereignty lineage Data Owner Data Steward Capa 1",
+    "expected_document_ids": [
+      "pattern.data-layer-governance-compliance",
+      "pattern.data-layer-catalog"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "data-layer",
+      "governance"
+    ]
+  },
+  {
+    "id": "data_layer_early_binding_guard",
+    "query": "Early-Binding Guard filters permissions before retrieval RBAC ABAC chunks invisible to LLM",
+    "expected_document_ids": [
+      "pattern.data-layer-access-security",
+      "glossary.data-layer",
+      "risk.data-layer-security-risk-register"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "security",
+      "data-layer"
+    ]
+  },
+  {
+    "id": "data_layer_prompt_injection_indirect",
+    "query": "indirect prompt injection retrieved document malicious instructions mitigation data not instructions",
+    "expected_document_ids": [
+      "pattern.data-layer-access-security",
+      "risk.data-layer-security-risk-register",
+      "glossary.data-layer"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "security",
+      "data-layer"
+    ]
+  },
+  {
+    "id": "data_layer_sensitive_pii_handling",
+    "query": "PII sensitive information anonymization masking index by case_id not global corpus",
+    "expected_document_ids": [
+      "pattern.data-layer-access-security",
+      "risk.data-layer-security-risk-register",
+      "standard.data-layer-if-then-rules"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "security",
+      "pii"
+    ]
+  },
+  {
+    "id": "data_layer_mcp_context_standard",
+    "query": "Clasificacion de datos y consumo mediante MCP Capa 1 capabilities tools resources prompts contrato tipado RBAC ABAC",
+    "expected_document_ids": [
+      "pattern.data-layer-classification-mcp",
+      "concept.mcp",
+      "pattern.sql-agent-mcp-serving"
+    ],
+    "top_k": 5,
+    "tags": [
+      "multi-hop",
+      "mcp",
+      "data-layer"
+    ]
+  },
+  {
+    "id": "data_layer_ingestion_medallion",
+    "query": "Bronze Silver Gold Medallion architecture ingestion documentary data layer OCR metadata",
+    "expected_document_ids": [
+      "pattern.data-layer-ingestion-strategy",
+      "pattern.data-layer-data-quality"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "ingestion",
+      "data-layer"
+    ]
+  },
+  {
+    "id": "data_layer_rag_pipeline_steps",
+    "query": "RAG pipeline approval source extraction OCR PII chunking embeddings index golden set retrieval rerank abstention",
+    "expected_document_ids": [
+      "pattern.data-layer-rag-pipeline",
+      "pattern.data-layer-ingestion-strategy",
+      "pattern.data-layer-data-quality"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "rag",
+      "data-layer"
+    ]
+  },
+  {
+    "id": "data_layer_chunking_strategy",
+    "query": "RAG pipeline chunking structural semantic hybrid fixed hierarchical parent child overlap chunk_id strategy",
+    "expected_document_ids": [
+      "pattern.data-layer-rag-pipeline",
+      "pattern.hybrid-retrieval",
+      "standard.data-layer-if-then-rules"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "chunking",
+      "retrieval"
+    ]
+  },
+  {
+    "id": "data_layer_ocr_quality",
+    "query": "OCR validation PASS HITL BLOCK missing pages hallucinations document quality checks",
+    "expected_document_ids": [
+      "pattern.data-layer-data-quality",
+      "checklist.data-layer-readiness",
+      "risk.data-layer-security-risk-register"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "quality",
+      "ocr"
+    ]
+  },
+  {
+    "id": "data_layer_catalog_semantic_technical",
+    "query": "catalogo semantico catalogo tecnico glosario owners lineage sensibilidad taxonomia Capa 1 data layer",
+    "expected_document_ids": [
+      "pattern.data-layer-catalog",
+      "pattern.data-layer-governance-compliance",
+      "glossary.data-layer"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "catalog",
+      "data-layer"
+    ]
+  },
+  {
+    "id": "data_layer_production_operations",
+    "query": "production operations CDC CI CD data pipeline graceful degradation golden sets rollback metrics index rebuilding",
+    "expected_document_ids": [
+      "pattern.data-layer-production-operations",
+      "pattern.data-layer-data-quality",
+      "playbook.data-layer-handoff"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "operations",
+      "data-layer"
+    ]
+  },
+  {
+    "id": "data_layer_data_agent_contract",
+    "query": "Data Contract Agent Contract handoff Capa 2 manifest versions compatibility rollback limitations",
+    "expected_document_ids": [
+      "playbook.data-layer-handoff",
+      "glossary.data-layer",
+      "pattern.data-layer-production-operations"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "contracts",
+      "data-layer"
+    ]
+  },
+  {
+    "id": "data_layer_readiness_checklist",
+    "query": "pre-indexing pre-handoff re-indexation operation monthly checklist source allowlist owner classification OCR golden set",
+    "expected_document_ids": [
+      "checklist.data-layer-readiness",
+      "pattern.data-layer-data-quality",
+      "playbook.data-layer-handoff"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "checklist",
+      "data-layer"
+    ]
+  },
+  {
+    "id": "data_layer_if_then_rules",
+    "query": "Reglas Si-Entonces Data Layer agentes IA dato exacto transaccional usar Tool API texto documental usar RAG",
+    "expected_document_ids": [
+      "standard.data-layer-if-then-rules",
+      "pattern.data-layer-decision-tree",
+      "pattern.data-layer-production-operations"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "rules",
+      "data-layer"
+    ]
+  },
+  {
+    "id": "sql_agent_semantic_layer_bi",
+    "query": "semantic layer conversational BI metrics query_metric explain_metric revenue churn dimensions filters",
+    "expected_document_ids": [
+      "pattern.sql-agent-semantic-layer",
+      "playbook.sql-agent-enterprise"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "sql-agent",
+      "semantic-layer"
+    ]
+  },
+  {
+    "id": "sql_agent_internal_apis_tools",
+    "query": "internal APIs as tools wrap API instead of direct SQL business rules permissions OpenAPI curation",
+    "expected_document_ids": [
+      "pattern.sql-agent-api-wrappers",
+      "pattern.sql-agent-access",
+      "playbook.sql-agent-enterprise"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "sql-agent",
+      "api"
+    ]
+  },
+  {
+    "id": "sql_agent_entity_resolution_mdm",
+    "query": "customer 360 entity resolution MDM resolve_customer multi-system CRM SAP billing support",
+    "expected_document_ids": [
+      "pattern.sql-agent-entity-resolution",
+      "case-study.sql-agent-use-cases"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "sql-agent",
+      "entity-resolution"
+    ]
+  },
+  {
+    "id": "sql_agent_observability_evaluation",
+    "query": "observability evaluation SQL agents latency cost rows returned tool metrics quality dataset prompt injection",
+    "expected_document_ids": [
+      "pattern.sql-agent-observability",
+      "risk.sql-agent-risk-register",
+      "checklist.sql-agent-readiness"
+    ],
+    "top_k": 5,
+    "tags": [
+      "direct",
+      "sql-agent",
+      "observability"
+    ]
+  },
+  {
+    "id": "multi_hop_data_layer_security_and_operations",
+    "query": "How do Early-Binding Guard golden sets and rollback work together before publishing a data layer index",
+    "expected_document_ids": [
+      "pattern.data-layer-access-security",
+      "pattern.data-layer-production-operations",
+      "checklist.data-layer-readiness"
+    ],
+    "top_k": 5,
+    "tags": [
+      "multi-hop",
+      "security",
+      "operations"
+    ]
+  },
+  {
+    "id": "multi_hop_sql_and_data_layer_mcp",
+    "query": "SQL agent MCP server tools resources prompts and data layer MCP classification context standard",
+    "expected_document_ids": [
+      "pattern.sql-agent-mcp-serving",
+      "pattern.data-layer-classification-mcp",
+      "concept.mcp"
+    ],
+    "top_k": 5,
+    "tags": [
+      "multi-hop",
+      "mcp",
+      "comparison"
+    ]
+  },
+  {
+    "id": "unanswerable_blockchain_tarot",
+    "query": "tarot reading venus retrograde crystal horoscope numerology ritual candles",
+    "expected_document_ids": [],
+    "top_k": 5,
+    "tags": [
+      "unanswerable"
+    ]
+  },
+  {
+    "id": "unanswerable_kubernetes_gpu_autoscaler",
+    "query": "GPU kernel driver CUDA warp occupancy tensor cores nvlink compiler flags",
+    "expected_document_ids": [],
+    "top_k": 5,
+    "tags": [
+      "unanswerable"
+    ]
   }
 ]

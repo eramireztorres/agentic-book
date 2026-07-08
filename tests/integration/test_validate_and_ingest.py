@@ -6,7 +6,6 @@ from agentic_book.application.validation import ValidateCorpus
 from agentic_book.infrastructure.blobstores.filesystem import FilesystemContentObjectStore
 from agentic_book.infrastructure.markdown.parser import MarkdownDocumentParser
 
-
 MIN_CANONICAL_DOCUMENTS = 13
 
 

@@ -75,6 +75,7 @@ def list_retrieval_eval_matrix_rows() -> tuple[RetrievalEvalMatrixRow, ...]:
             name="vector",
             profile="custom",
             retrieval_mode="vector",
+            min_hit_rate=0.9,
             min_mrr=0.6,
             min_unanswerable_success=0.0,
         ),
