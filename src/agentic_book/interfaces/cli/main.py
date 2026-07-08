@@ -20,12 +20,21 @@ from agentic_book.application.evaluation_profiles import (
 )
 from agentic_book.application.freshness import BuildStaleReport, ProposeDocumentationUpdate
 from agentic_book.application.fusion import FusionSearchCorpus
+from agentic_book.application.fusion_evaluation import EvaluateFusionRetrieval
 from agentic_book.application.ingest import IngestCorpus
 from agentic_book.application.validation import ValidateCorpus
-from agentic_book.domain.models import RetrievalEvalReport, RetrievalFilters, RetrievalQuery, RetrievalResult
+from agentic_book.domain.models import (
+    FusionEvalReport,
+    RetrievalEvalReport,
+    RetrievalFilters,
+    RetrievalQuery,
+    RetrievalResult,
+)
 from agentic_book.infrastructure.blobstores.filesystem import FilesystemContentObjectStore
 from agentic_book.infrastructure.evaluation.json_dataset import (
+    load_fusion_eval_cases,
     load_retrieval_eval_cases,
+    write_fusion_eval_report,
     write_retrieval_eval_matrix_report,
     write_retrieval_eval_report,
 )
@@ -68,6 +77,16 @@ def main(argv: list[str] | None = None) -> int:
     fusion_parser.add_argument("--final-top-k", type=int, default=10)
     fusion_parser.add_argument("--rrf-k", type=int, default=60)
     _add_filter_args(fusion_parser)
+
+    fusion_eval_parser = subparsers.add_parser("eval-fusion", help="Evaluate multi-query fusion search with RRF")
+    fusion_eval_parser.add_argument(
+        "--dataset", default="evals/retrieval/fusion_ground_truth.json", help="Path to fusion eval JSON"
+    )
+    fusion_eval_parser.add_argument("--min-hit-rate", type=float, default=1.0)
+    fusion_eval_parser.add_argument("--min-mrr", type=float, default=0.8)
+    fusion_eval_parser.add_argument("--min-unanswerable-success", type=float, default=1.0)
+    fusion_eval_parser.add_argument("--write-report", help="Write JSON evaluation report to this path")
+    fusion_eval_parser.add_argument("--json", action="store_true", default=False, help="Print machine-readable JSON")
 
     document_parser = subparsers.add_parser("get-document", help="Print a complete indexed document by id")
     document_parser.add_argument("document_id", help="Canonical document id")
@@ -230,6 +249,48 @@ def main(argv: list[str] | None = None) -> int:
         _print_results(results)
         return 0
 
+    if args.command == "eval-fusion":
+        try:
+            chunks = asyncio.run(index_store.read_chunks())
+            fusion_cases = load_fusion_eval_cases(Path(args.dataset))
+        except FileNotFoundError as exc:
+            print(f"ERROR: {exc}")
+            return 1
+        except ValueError as exc:
+            print(f"ERROR: {exc}")
+            return 1
+        fusion_report = asyncio.run(
+            EvaluateFusionRetrieval(FusionSearchCorpus(SimpleLexicalIndex(chunks))).run(fusion_cases)
+        )
+        if args.write_report:
+            write_fusion_eval_report(fusion_report, Path(args.write_report))
+        if args.json:
+            print(json.dumps(_jsonable(asdict(fusion_report)), indent=2, sort_keys=True))
+        else:
+            print(
+                f"retrieval_mode=fusion cases={fusion_report.cases} answerable={fusion_report.answerable_cases} "
+                f"unanswerable={fusion_report.unanswerable_cases} hit_rate={fusion_report.hit_rate:.3f} "
+                f"mrr={fusion_report.mean_reciprocal_rank:.3f} "
+                f"unanswerable_success_rate={fusion_report.unanswerable_success_rate:.3f}"
+            )
+            for fusion_result in fusion_report.results:
+                status = "PASS" if fusion_result.hit else "FAIL"
+                retrieved = ",".join(fusion_result.retrieved_document_ids[: fusion_result.final_top_k]) or "none"
+                expected = ",".join(fusion_result.expected_document_ids) or "none"
+                queries = " | ".join(fusion_result.queries)
+                print(
+                    f"{status}: {fusion_result.case_id} expected={expected} retrieved={retrieved} "
+                    f"rr={fusion_result.reciprocal_rank:.3f} max_score={fusion_result.max_score:.3f} queries={queries}"
+                )
+        if not _fusion_eval_passed(
+            report=fusion_report,
+            min_hit_rate=args.min_hit_rate,
+            min_mrr=args.min_mrr,
+            min_unanswerable_success=args.min_unanswerable_success,
+        ):
+            return 1
+        return 0
+
     if args.command == "get-document":
         try:
             document = asyncio.run(GetDocument(index_store).run(args.document_id))
@@ -248,7 +309,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "eval-retrieval":
         try:
             chunks = asyncio.run(index_store.read_chunks())
-            cases = load_retrieval_eval_cases(Path(args.dataset))
+            retrieval_cases = load_retrieval_eval_cases(Path(args.dataset))
             search_corpus = asyncio.run(
                 build_local_search_corpus(chunks, vector_store_backend=config.vector_store, data_dir=config.data_dir)
             )
@@ -271,7 +332,7 @@ def main(argv: list[str] | None = None) -> int:
         eval_report = asyncio.run(
             EvaluateRetrieval(
                 search_corpus, retrieval_mode=retrieval_mode, min_score=min_score, profile=args.profile
-            ).run(cases)
+            ).run(retrieval_cases)
         )
         if args.write_report:
             write_retrieval_eval_report(eval_report, Path(args.write_report))
@@ -286,14 +347,14 @@ def main(argv: list[str] | None = None) -> int:
                 f"unanswerable_success_rate={eval_report.unanswerable_success_rate:.3f} "
                 f"abstention_rate={eval_report.abstention_rate:.3f}"
             )
-            for result in eval_report.results:
-                status = "PASS" if result.hit else "FAIL"
-                retrieved = ",".join(result.retrieved_document_ids[: result.top_k]) or "none"
-                expected = ",".join(result.expected_document_ids) or "none"
+            for retrieval_result in eval_report.results:
+                status = "PASS" if retrieval_result.hit else "FAIL"
+                retrieved = ",".join(retrieval_result.retrieved_document_ids[: retrieval_result.top_k]) or "none"
+                expected = ",".join(retrieval_result.expected_document_ids) or "none"
                 print(
-                    f"{status}: {result.case_id} expected={expected} retrieved={retrieved} "
-                    f"rr={result.reciprocal_rank:.3f} max_score={result.max_score:.3f} "
-                    f"abstained={str(result.abstained).lower()}"
+                    f"{status}: {retrieval_result.case_id} expected={expected} retrieved={retrieved} "
+                    f"rr={retrieval_result.reciprocal_rank:.3f} max_score={retrieval_result.max_score:.3f} "
+                    f"abstained={str(retrieval_result.abstained).lower()}"
                 )
         if not _retrieval_eval_passed(
             report=eval_report,
@@ -307,7 +368,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "eval-matrix":
         try:
             chunks = asyncio.run(index_store.read_chunks())
-            cases = load_retrieval_eval_cases(Path(args.dataset))
+            matrix_cases = load_retrieval_eval_cases(Path(args.dataset))
             search_corpus = asyncio.run(
                 build_local_search_corpus(chunks, vector_store_backend=config.vector_store, data_dir=config.data_dir)
             )
@@ -326,16 +387,16 @@ def main(argv: list[str] | None = None) -> int:
         matrix_passed = True
         for row in matrix_rows:
             profile = resolve_retrieval_eval_row(row)
-            report = asyncio.run(
+            matrix_row_report = asyncio.run(
                 EvaluateRetrieval(
                     search_corpus,
                     retrieval_mode=profile.retrieval_mode,
                     min_score=profile.min_score,
                     profile=profile.name,
-                ).run(cases)
+                ).run(matrix_cases)
             )
             passed = _retrieval_eval_passed(
-                report=report,
+                report=matrix_row_report,
                 min_hit_rate=profile.min_hit_rate,
                 min_mrr=profile.min_mrr,
                 min_unanswerable_success=profile.min_unanswerable_success,
@@ -344,29 +405,29 @@ def main(argv: list[str] | None = None) -> int:
             entry = {
                 "row": row.name,
                 "passed": passed,
-                "profile": report.profile,
-                "retrieval_mode": report.retrieval_mode,
+                "profile": matrix_row_report.profile,
+                "retrieval_mode": matrix_row_report.retrieval_mode,
                 "min_hit_rate": profile.min_hit_rate,
                 "min_mrr": profile.min_mrr,
                 "min_unanswerable_success": profile.min_unanswerable_success,
                 "min_score": profile.min_score,
-                "cases": report.cases,
-                "answerable_cases": report.answerable_cases,
-                "unanswerable_cases": report.unanswerable_cases,
-                "hit_rate": report.hit_rate,
-                "mean_reciprocal_rank": report.mean_reciprocal_rank,
-                "unanswerable_success_rate": report.unanswerable_success_rate,
-                "abstention_rate": report.abstention_rate,
+                "cases": matrix_row_report.cases,
+                "answerable_cases": matrix_row_report.answerable_cases,
+                "unanswerable_cases": matrix_row_report.unanswerable_cases,
+                "hit_rate": matrix_row_report.hit_rate,
+                "mean_reciprocal_rank": matrix_row_report.mean_reciprocal_rank,
+                "unanswerable_success_rate": matrix_row_report.unanswerable_success_rate,
+                "abstention_rate": matrix_row_report.abstention_rate,
             }
             entries.append(entry)
             if not args.json:
                 status = "PASS" if passed else "FAIL"
                 print(
-                    f"{status}: row={row.name} profile={report.profile} "
-                    f"retrieval_mode={report.retrieval_mode} cases={report.cases} "
-                    f"hit_rate={report.hit_rate:.3f} mrr={report.mean_reciprocal_rank:.3f} "
-                    f"unanswerable_success_rate={report.unanswerable_success_rate:.3f} "
-                    f"abstention_rate={report.abstention_rate:.3f}"
+                    f"{status}: row={row.name} profile={matrix_row_report.profile} "
+                    f"retrieval_mode={matrix_row_report.retrieval_mode} cases={matrix_row_report.cases} "
+                    f"hit_rate={matrix_row_report.hit_rate:.3f} mrr={matrix_row_report.mean_reciprocal_rank:.3f} "
+                    f"unanswerable_success_rate={matrix_row_report.unanswerable_success_rate:.3f} "
+                    f"abstention_rate={matrix_row_report.abstention_rate:.3f}"
                 )
 
         matrix_report = {
@@ -480,6 +541,20 @@ def _print_results(results: list[RetrievalResult]) -> None:
 def _retrieval_eval_passed(
     *,
     report: RetrievalEvalReport,
+    min_hit_rate: float,
+    min_mrr: float,
+    min_unanswerable_success: float,
+) -> bool:
+    return (
+        report.hit_rate >= min_hit_rate
+        and report.mean_reciprocal_rank >= min_mrr
+        and report.unanswerable_success_rate >= min_unanswerable_success
+    )
+
+
+def _fusion_eval_passed(
+    *,
+    report: FusionEvalReport,
     min_hit_rate: float,
     min_mrr: float,
     min_unanswerable_success: float,

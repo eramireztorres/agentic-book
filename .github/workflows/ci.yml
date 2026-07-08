@@ -58,6 +58,9 @@ jobs:
       - name: Write latest guarded retrieval report
         run: agentic-book --content-root content --data-dir .agentic-book-data eval-retrieval --profile guarded --write-report evals/reports/latest.json
 
+      - name: Evaluate fusion retrieval
+        run: agentic-book --content-root content --data-dir .agentic-book-data eval-fusion --write-report evals/reports/fusion.json
+
       - name: Run tests
         run: python -m pytest
 

@@ -362,14 +362,15 @@ The domain and application layers are written behind ports so later S3, OpenSear
 
 ## Retrieval Evaluation
 
-The baseline dataset lives at `evals/retrieval/ground_truth.json`.
+The baseline dataset lives at `evals/retrieval/ground_truth.json`. Fusion-specific multi-query cases live at `evals/retrieval/fusion_ground_truth.json`.
 
 ```bash
 agentic-book --data-dir .agentic-book-data eval-matrix --write-report evals/reports/matrix.json
 agentic-book --data-dir .agentic-book-data eval-retrieval --profile guarded --write-report evals/reports/latest.json
+agentic-book --data-dir .agentic-book-data eval-fusion --write-report evals/reports/fusion.json
 ```
 
-`eval-matrix` runs the standard baseline, vector, and guarded profiles. It reports hit rate, mean reciprocal rank, unanswerable success rate, and abstention rate. CI uses these checks to catch retrieval quality regressions.
+`eval-matrix` runs the standard baseline, vector, and guarded profiles. It reports hit rate, mean reciprocal rank, unanswerable success rate, and abstention rate. `eval-fusion` evaluates multi-query `fusion_search` cases merged with Reciprocal Rank Fusion. CI uses these checks to catch retrieval quality regressions.
 
 ## Freshness Workflow
 

@@ -1,0 +1,155 @@
+[
+  {
+    "id": "fusion_mcp_protocol_and_serving",
+    "queries": [
+      "Streamable HTTP resources tools prompts",
+      "MCP server data access",
+      "FastMCP server framework"
+    ],
+    "expected_document_ids": [
+      "concept.mcp",
+      "pattern.sql-agent-mcp-serving",
+      "platform.fastmcp"
+    ],
+    "top_k_per_query": 8,
+    "final_top_k": 5,
+    "tags": [
+      "fusion",
+      "mcp",
+      "multi-hop"
+    ]
+  },
+  {
+    "id": "fusion_sql_security_observability",
+    "queries": [
+      "SQL agent security least privilege",
+      "audit SQL queries rows returned",
+      "prompt injection approval human sensitive domains"
+    ],
+    "expected_document_ids": [
+      "pattern.sql-agent-security",
+      "pattern.sql-agent-observability",
+      "risk.sql-agent-risk-register"
+    ],
+    "top_k_per_query": 8,
+    "final_top_k": 5,
+    "tags": [
+      "fusion",
+      "sql-agent",
+      "security"
+    ]
+  },
+  {
+    "id": "fusion_semantic_layer_bi",
+    "queries": [
+      "semantic layer conversational BI metrics",
+      "query_metric explain_metric definitions",
+      "revenue churn dimensions filters"
+    ],
+    "expected_document_ids": [
+      "pattern.sql-agent-semantic-layer",
+      "playbook.sql-agent-enterprise"
+    ],
+    "top_k_per_query": 8,
+    "final_top_k": 5,
+    "tags": [
+      "fusion",
+      "sql-agent",
+      "semantic-layer"
+    ]
+  },
+  {
+    "id": "fusion_data_layer_decision_rules",
+    "queries": [
+      "Arbol de decision Capa 1 Tool API RAG",
+      "Reglas Si-Entonces dato exacto transaccional",
+      "no vectorices el core chunk_id abstiene"
+    ],
+    "expected_document_ids": [
+      "pattern.data-layer-decision-tree",
+      "standard.data-layer-if-then-rules"
+    ],
+    "top_k_per_query": 8,
+    "final_top_k": 5,
+    "tags": [
+      "fusion",
+      "data-layer",
+      "rules"
+    ]
+  },
+  {
+    "id": "fusion_data_layer_rag_quality",
+    "queries": [
+      "RAG pipeline OCR chunking embeddings rerank",
+      "golden set retrieval evaluation",
+      "document quality missing pages HITL"
+    ],
+    "expected_document_ids": [
+      "pattern.data-layer-rag-pipeline",
+      "pattern.data-layer-data-quality",
+      "checklist.data-layer-readiness"
+    ],
+    "top_k_per_query": 8,
+    "final_top_k": 5,
+    "tags": [
+      "fusion",
+      "data-layer",
+      "rag"
+    ]
+  },
+  {
+    "id": "fusion_data_layer_governance_catalog",
+    "queries": [
+      "GDPR EU AI Act sovereignty lineage",
+      "catalogo semantico tecnico glosario owners",
+      "Data Owner Data Steward sensitivity taxonomy"
+    ],
+    "expected_document_ids": [
+      "pattern.data-layer-governance-compliance",
+      "pattern.data-layer-catalog",
+      "glossary.data-layer"
+    ],
+    "top_k_per_query": 8,
+    "final_top_k": 5,
+    "tags": [
+      "fusion",
+      "data-layer",
+      "governance"
+    ]
+  },
+  {
+    "id": "fusion_cross_sql_and_data_layer_mcp",
+    "queries": [
+      "SQL agent MCP tools resources prompts",
+      "Clasificacion de datos consumo mediante MCP",
+      "capabilities contrato tipado RBAC ABAC"
+    ],
+    "expected_document_ids": [
+      "pattern.sql-agent-mcp-serving",
+      "pattern.data-layer-classification-mcp",
+      "concept.mcp"
+    ],
+    "top_k_per_query": 8,
+    "final_top_k": 5,
+    "tags": [
+      "fusion",
+      "mcp",
+      "multi-hop"
+    ]
+  },
+  {
+    "id": "fusion_unanswerable_astrology_cooking",
+    "queries": [
+      "tarot venus retrograde ritual candles",
+      "sourdough hydration pizza oven cheese",
+      "astrology moon sign horoscope"
+    ],
+    "expected_document_ids": [],
+    "top_k_per_query": 8,
+    "final_top_k": 5,
+    "tags": [
+      "fusion",
+      "unanswerable"
+    ]
+  }
+]

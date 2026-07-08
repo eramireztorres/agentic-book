@@ -180,6 +180,45 @@ class RetrievalEvalReport:
 
 
 @dataclass(frozen=True)
+class FusionEvalCase:
+    id: str
+    queries: list[str]
+    expected_document_ids: list[str] = field(default_factory=list)
+    top_k_per_query: int = 8
+    final_top_k: int = 5
+    rrf_k: int = 60
+    tags: list[str] = field(default_factory=list)
+    notes: str | None = None
+
+    @property
+    def answerable(self) -> bool:
+        return bool(self.expected_document_ids)
+
+
+@dataclass(frozen=True)
+class FusionEvalResult:
+    case_id: str
+    queries: list[str]
+    expected_document_ids: list[str]
+    retrieved_document_ids: list[str]
+    hit: bool
+    reciprocal_rank: float
+    final_top_k: int
+    max_score: float = 0.0
+
+
+@dataclass(frozen=True)
+class FusionEvalReport:
+    cases: int
+    answerable_cases: int
+    unanswerable_cases: int
+    hit_rate: float
+    mean_reciprocal_rank: float
+    unanswerable_success_rate: float
+    results: list[FusionEvalResult] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
 class ValidationIssue:
     source_uri: str
     message: str
