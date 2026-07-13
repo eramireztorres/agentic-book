@@ -4,14 +4,25 @@ services:
       context: .
     image: agentic-book:local
     ports:
-      - "8000:8000"
+      - "127.0.0.1:${AGENTIC_BOOK_HOST_PORT:-8000}:8000"
     environment:
       AGENTIC_BOOK_CONTENT_ROOT: /app/content
       AGENTIC_BOOK_DATA_DIR: /data
       AGENTIC_BOOK_VECTOR_STORE: memory
       AGENTIC_BOOK_AUTO_INGEST: "true"
     volumes:
+      - ./content:/app/content:ro
       - agentic-book-data:/data
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import socket; connection = socket.create_connection(('127.0.0.1', 8000), 2); connection.close()"
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
     command:
       - agentic-book
       - --content-root
