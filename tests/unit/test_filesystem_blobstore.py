@@ -11,10 +11,8 @@ def test_uri_to_path_decodes_posix_file_uri() -> None:
     assert path == Path("/tmp/agentic book/test.md")
 
 
-def test_uri_to_path_normalizes_windows_drive_uri(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(filesystem.os, "name", "nt")
-
-    path = filesystem._uri_to_path("file:///D:/a/agentic-book/agentic-book/content/test.md")
+def test_uri_to_path_normalizes_windows_drive_uri() -> None:
+    path = filesystem._uri_to_path("file:///D:/a/agentic-book/agentic-book/content/test.md", os_name="nt")
 
     assert str(path).replace("\\", "/") == "D:/a/agentic-book/agentic-book/content/test.md"
 

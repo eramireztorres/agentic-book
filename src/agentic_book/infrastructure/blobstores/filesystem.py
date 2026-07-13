@@ -39,12 +39,13 @@ def _path_to_uri(path: Path) -> str:
     return path.resolve().as_uri()
 
 
-def _uri_to_path(uri: str) -> Path:
+def _uri_to_path(uri: str, os_name: str | None = None) -> Path:
     parsed = urlparse(uri)
     if parsed.scheme != "file" or parsed.netloc not in ("", "localhost"):
         raise ValueError(f"Unsupported filesystem URI: {uri}")
     path = url2pathname(unquote(parsed.path))
-    if os.name == "nt" and len(path) >= 3 and path[0] == "/" and path[2] == ":":
+    platform_name = os.name if os_name is None else os_name
+    if platform_name == "nt" and len(path) >= 3 and path[0] == "/" and path[2] == ":":
         path = path[1:]
     return Path(path)
 
