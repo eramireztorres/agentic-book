@@ -60,10 +60,18 @@ def test_docker_runtime_serves_http_mcp_with_auto_ingest_and_healthcheck() -> No
     assert 'agentic-book --content-root "$content_root" --data-dir "$data_dir" ingest' in entrypoint
 
 
-def test_spanish_readme_exposes_beginner_http_flow_and_guides() -> None:
+def test_spanish_readme_prioritizes_native_setup_then_docker_and_guides() -> None:
     readme = Path("README.md").read_text(encoding="utf-8")
 
-    assert "## Inicio rápido con Docker" in readme
+    native_heading = readme.index("## Inicio rápido: instalación nativa")
+    docker_heading = readme.index("## Segunda opción: Docker")
+    assert native_heading < docker_heading
+    assert "### 2. Linux" in readme
+    assert "### 3. macOS" in readme
+    assert "### 4. Windows PowerShell" in readme
+    assert "./scripts/setup.sh" in readme
+    assert "powershell -ExecutionPolicy Bypass -File .\\scripts\\setup.ps1" in readme
+    assert "serve-mcp --transport stdio" in readme
     assert "docker compose up --build -d" in readme
     assert "codex mcp add agentic_book --url http://127.0.0.1:8000/mcp" in readme
     assert "claude mcp add --transport http agentic_book http://127.0.0.1:8000/mcp" in readme
