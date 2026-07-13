@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
+from urllib.parse import unquote, urlparse
+from urllib.request import url2pathname
 
 from agentic_book.domain.models import ContentObject, ContentObjectRef
 
@@ -37,9 +40,13 @@ def _path_to_uri(path: Path) -> str:
 
 
 def _uri_to_path(uri: str) -> Path:
-    if not uri.startswith("file://"):
+    parsed = urlparse(uri)
+    if parsed.scheme != "file" or parsed.netloc not in ("", "localhost"):
         raise ValueError(f"Unsupported filesystem URI: {uri}")
-    return Path(uri.removeprefix("file://"))
+    path = url2pathname(unquote(parsed.path))
+    if os.name == "nt" and len(path) >= 3 and path[0] == "/" and path[2] == ":":
+        path = path[1:]
+    return Path(path)
 
 
 def _is_relative_to(path: Path, root: Path) -> bool:
