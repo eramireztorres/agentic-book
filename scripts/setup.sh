@@ -38,16 +38,9 @@ agentic_book="$venv_dir/bin/agentic-book"
 echo "Instalando Agentic Book y el servidor MCP..."
 "$venv_python" -m pip install -e "$repo_root[mcp]"
 
-echo "Validando el contenido curado..."
-"$agentic_book" --content-root "$repo_root/content" validate-content --strict-freshness
-
-echo "Construyendo el índice local..."
-"$agentic_book" --content-root "$repo_root/content" --data-dir "$repo_root/.agentic-book-data" ingest
-
-echo "Comprobando una recuperación completa..."
-"$agentic_book" --data-dir "$repo_root/.agentic-book-data" get-document playbook.sql-agent-enterprise >/dev/null
+"$agentic_book" --help >/dev/null
 
 echo
 echo "Instalación completada correctamente."
 echo "Ejecutable MCP: $agentic_book"
-echo "Índice local: $repo_root/.agentic-book-data"
+echo "Siguiente paso: ./scripts/ingest.sh"

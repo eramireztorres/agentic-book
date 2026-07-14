@@ -1,4 +1,5 @@
 import asyncio
+import json
 from pathlib import Path
 
 import pytest
@@ -25,9 +26,11 @@ def test_mcp_server_can_be_created_when_fastmcp_is_installed(tmp_path: Path) -> 
     )
     server = create_mcp_server(data_dir=str(tmp_path))
 
-    async def run_client() -> tuple[list[str], dict, dict, dict, dict]:
+    async def run_client() -> tuple[list[str], dict, dict, dict, dict, dict]:
         async with Client(server) as client:
             tools = await client.list_tools()
+            resources = await client.list_resources()
+            manifest_resource = await client.read_resource("agentic-book://manifest")
             manifest = await client.call_tool("corpus_manifest", {})
             search = await client.call_tool("search", {"query": "Streamable HTTP MCP", "top_k": 2})
             guarded_search = await client.call_tool(
@@ -38,16 +41,28 @@ def test_mcp_server_can_be_created_when_fastmcp_is_installed(tmp_path: Path) -> 
                 "fusion_search",
                 {"queries": ["Streamable HTTP", "MCP resources"], "final_top_k": 2},
             )
-            return [tool.name for tool in tools], manifest.data, search.data, guarded_search.data, fusion.data
+            manifest_text = manifest_resource[0].text
+            return (
+                [tool.name for tool in tools],
+                {str(resource.uri) for resource in resources},
+                json.loads(manifest_text),
+                manifest.data,
+                search.data,
+                guarded_search.data,
+                fusion.data,
+            )
 
-    tool_names, manifest, search, guarded_search, fusion = asyncio.run(run_client())
+    tool_names, resource_uris, manifest_resource, manifest, search, guarded_search, fusion = asyncio.run(run_client())
 
     assert "search" in tool_names
     assert "fusion_search" in tool_names
     assert "get_document" in tool_names
     assert "corpus_manifest" in tool_names
+    assert "agentic-book://manifest" in resource_uris
     assert "stale_report" not in tool_names
     assert "propose_doc_update" not in tool_names
+    assert manifest_resource["documents"] == manifest["documents"]
+    assert manifest_resource["chunks"] == manifest["chunks"]
     assert manifest["documents"] >= 13
     assert manifest["ingestion_state"]["documents_tracked"] >= 13
     assert manifest["freshness"]["checked"] >= 13

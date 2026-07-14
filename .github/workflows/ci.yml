@@ -88,10 +88,19 @@ jobs:
         if: runner.os != 'Windows'
         run: ./scripts/setup.sh
 
+      - name: Run Unix ingest
+        if: runner.os != 'Windows'
+        run: ./scripts/ingest.sh
+
       - name: Run Windows setup
         if: runner.os == 'Windows'
         shell: powershell
         run: powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1
+
+      - name: Run Windows ingest
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: powershell -ExecutionPolicy Bypass -File .\scripts\ingest.ps1
 
   docker-build:
     name: Build and smoke test Docker image

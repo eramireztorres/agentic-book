@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any, cast
 
@@ -140,14 +141,14 @@ def create_mcp_server(content_root: str = "content", data_dir: str = ".agentic-b
         }
 
     @mcp.resource("agentic-book://manifest")
-    async def manifest_resource() -> dict:
+    async def manifest_resource() -> str:
         """Expose corpus manifest as a stable resource."""
-        return await corpus_manifest()
+        return _resource_json(await corpus_manifest())
 
     @mcp.resource("agentic-book://documents/{document_id}")
-    async def document_resource(document_id: str) -> dict:
+    async def document_resource(document_id: str) -> str:
         """Expose indexed documents as stable resources."""
-        return await get_document(document_id)
+        return _resource_json(await get_document(document_id))
 
     @mcp.prompt
     def summarize_with_citations(document_id: str) -> str:
@@ -164,6 +165,10 @@ def create_mcp_server(content_root: str = "content", data_dir: str = ".agentic-b
         )
 
     return mcp
+
+
+def _resource_json(payload: dict) -> str:
+    return json.dumps(payload, ensure_ascii=False, indent=2)
 
 
 def _filters(document_type: str | None = None, domain: str | None = None, tag: str | None = None) -> RetrievalFilters:
