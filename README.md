@@ -6,26 +6,34 @@ El corpus actual incluye material sobre agentes LLM, MCP, FastMCP, acceso empres
 
 ## Inicio rápido: instalación nativa
 
-Esta es la primera opción recomendada para trabajar con agentes como Codex o Claude Code. Ejecuta el MCP mediante STDIO, no necesita Docker y deja el índice local en `.agentic-book-data/`.
+Esta es la primera opción recomendada para usar Agentic Book desde Codex o Claude Code. La instalación nativa usa STDIO: no deja un servidor escuchando en un puerto, sino que el cliente MCP arranca el proceso cuando lo necesita.
 
-### 1. Requisitos comunes
+### 1. Requisitos
 
-- Haber aceptado la invitación al repositorio privado con tu cuenta de GitHub.
 - Tener [Git](https://git-scm.com/downloads) instalado.
 - Tener Python 3.11 o superior. El proyecto se verifica en CI con Python 3.11 y 3.13.
 
-Clona el repositorio mediante HTTPS:
+No necesitas `OPENAI_API_KEY`: la configuración local predeterminada no llama a modelos externos.
+
+### 2. Clona el repositorio y entra en la carpeta
+
+Linux o macOS:
 
 ```bash
 git clone https://github.com/eramireztorres/agentic-book.git
 cd agentic-book
 ```
 
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/eramireztorres/agentic-book.git
+cd agentic-book
+```
+
 GitHub puede pedirte que inicies sesión. No uses la contraseña de tu cuenta como contraseña Git: utiliza el gestor de credenciales de GitHub, GitHub Desktop o un Personal Access Token. SSH también funciona si ya tienes una clave configurada.
 
-No necesitas `OPENAI_API_KEY`: la configuración local predeterminada no llama a modelos externos.
-
-### 2. Linux
+### 3. Instala en Linux
 
 Comprueba Python:
 
@@ -33,33 +41,15 @@ Comprueba Python:
 python3 --version
 ```
 
-Si muestra Python 3.11 o superior, ejecuta:
+Si muestra Python 3.11 o superior:
 
 ```bash
 ./scripts/setup.sh
 ```
 
-El script detecta `python3.13`, `python3.12`, `python3.11`, `python3` o `python`; crea `.venv`, instala Agentic Book, valida `content/`, ingesta el corpus y ejecuta una recuperación de prueba.
+Este paso solo instala: crea `.venv` si hace falta e instala el ejecutable `agentic-book` con soporte MCP.
 
-Para registrar el MCP en Codex mediante STDIO:
-
-```bash
-codex mcp add agentic_book -- "$(pwd)/.venv/bin/agentic-book" \
-  --content-root "$(pwd)/content" \
-  --data-dir "$(pwd)/.agentic-book-data" \
-  serve-mcp --transport stdio
-```
-
-Para Claude Code:
-
-```bash
-claude mcp add agentic_book -- "$(pwd)/.venv/bin/agentic-book" \
-  --content-root "$(pwd)/content" \
-  --data-dir "$(pwd)/.agentic-book-data" \
-  serve-mcp --transport stdio
-```
-
-### 3. macOS
+### 4. Instala en macOS
 
 Comprueba Python:
 
@@ -67,7 +57,7 @@ Comprueba Python:
 python3 --version
 ```
 
-Si muestra Python 3.11 o superior, ejecuta el mismo instalador:
+Si muestra Python 3.11 o superior:
 
 ```bash
 ./scripts/setup.sh
@@ -75,7 +65,43 @@ Si muestra Python 3.11 o superior, ejecuta el mismo instalador:
 
 Si `python3` no existe o es demasiado antiguo, instala Python desde `python.org` o con tu gestor habitual, por ejemplo Homebrew, y vuelve a ejecutar el script.
 
-Para registrar el MCP en Codex mediante STDIO:
+### 5. Instala en Windows PowerShell
+
+Comprueba Python:
+
+```powershell
+py -3 --version
+```
+
+Si muestra Python 3.11 o superior:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1
+```
+
+Este paso solo instala: crea `.venv` si hace falta e instala el ejecutable `agentic-book.exe` con soporte MCP. No necesitas ejecutar `source`, `Activate.ps1` ni activar manualmente el entorno virtual.
+
+### 6. Prepara el índice local
+
+Después de instalar, valida los Markdown curados y construye el índice local. Este paso crea o actualiza `.agentic-book-data/`.
+
+Linux o macOS:
+
+```bash
+./scripts/ingest.sh
+```
+
+Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\ingest.ps1
+```
+
+Repite este paso cuando añadas, reemplaces o elimines archivos en `content/`.
+
+### 7. Conecta Codex
+
+Linux o macOS:
 
 ```bash
 codex mcp add agentic_book -- "$(pwd)/.venv/bin/agentic-book" \
@@ -84,32 +110,7 @@ codex mcp add agentic_book -- "$(pwd)/.venv/bin/agentic-book" \
   serve-mcp --transport stdio
 ```
 
-Para Claude Code:
-
-```bash
-claude mcp add agentic_book -- "$(pwd)/.venv/bin/agentic-book" \
-  --content-root "$(pwd)/content" \
-  --data-dir "$(pwd)/.agentic-book-data" \
-  serve-mcp --transport stdio
-```
-
-### 4. Windows PowerShell
-
-Comprueba Python:
-
-```powershell
-py -3 --version
-```
-
-Si muestra Python 3.11 o superior, ejecuta:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1
-```
-
-El script crea `.venv`, instala Agentic Book, valida `content/`, ingesta el corpus y ejecuta una recuperación de prueba. No necesitas ejecutar `source`, `Activate.ps1` ni activar manualmente el entorno virtual.
-
-Para registrar el MCP en Codex mediante STDIO:
+Windows PowerShell:
 
 ```powershell
 $repo = (Get-Location).Path
@@ -119,7 +120,20 @@ codex mcp add agentic_book -- "$repo\.venv\Scripts\agentic-book.exe" `
   serve-mcp --transport stdio
 ```
 
-Para Claude Code:
+Abre una sesión nueva de Codex y ejecuta `/mcp`. `agentic_book` debe aparecer conectado.
+
+### 8. Conecta Claude Code
+
+Linux o macOS:
+
+```bash
+claude mcp add agentic_book -- "$(pwd)/.venv/bin/agentic-book" \
+  --content-root "$(pwd)/content" \
+  --data-dir "$(pwd)/.agentic-book-data" \
+  serve-mcp --transport stdio
+```
+
+Windows PowerShell:
 
 ```powershell
 $repo = (Get-Location).Path
@@ -129,11 +143,37 @@ claude mcp add agentic_book -- "$repo\.venv\Scripts\agentic-book.exe" `
   serve-mcp --transport stdio
 ```
 
-### 5. Comprueba la conexión
+Abre una sesión nueva de Claude Code y ejecuta `/mcp` para comprobar la conexión.
 
-Abre una sesión nueva de Codex o Claude Code y ejecuta `/mcp`. `agentic_book` debe aparecer conectado. Después prueba alguna de las preguntas de la sección siguiente.
+### 9. ¿Hay que arrancar el MCP server manualmente?
 
-Consulta la [guía de instalación nativa](docs/guias/instalacion-nativa.md) si prefieres comandos manuales o necesitas configurar rutas absolutas a mano.
+No en la instalación nativa recomendada. Cuando configuras Codex o Claude Code con `serve-mcp --transport stdio`, el propio cliente arranca el proceso MCP al iniciar la sesión y lo detiene cuando termina. Si cambias el contenido, ejecuta de nuevo el paso de ingesta y abre una sesión nueva del cliente.
+
+## Alternativa manual para usuarios avanzados
+
+Estos comandos hacen lo mismo que los scripts, pero de forma explícita.
+
+Linux o macOS:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -e ".[mcp]"
+.venv/bin/agentic-book --content-root content validate-content --strict-freshness
+.venv/bin/agentic-book --content-root content --data-dir .agentic-book-data ingest
+.venv/bin/agentic-book --data-dir .agentic-book-data get-document playbook.sql-agent-enterprise
+```
+
+Windows PowerShell:
+
+```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[mcp]"
+.\.venv\Scripts\agentic-book.exe --content-root content validate-content --strict-freshness
+.\.venv\Scripts\agentic-book.exe --content-root content --data-dir .agentic-book-data ingest
+.\.venv\Scripts\agentic-book.exe --data-dir .agentic-book-data get-document playbook.sql-agent-enterprise
+```
+
+Consulta la [guía de instalación nativa](docs/guias/instalacion-nativa.md) si necesitas configurar rutas absolutas a mano o entender cada comando con más detalle.
 
 ## Segunda opción: Docker
 
@@ -143,6 +183,13 @@ Docker es útil si no quieres instalar Python o si prefieres aislar el servicio.
 
 - Tener [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e iniciado. En Linux también puedes usar Docker Engine con el complemento Compose.
 - Haber clonado el repositorio y estar situado en la carpeta `agentic-book`.
+
+Si todavía no clonaste el repositorio:
+
+```bash
+git clone https://github.com/eramireztorres/agentic-book.git
+cd agentic-book
+```
 
 ### 2. Inicia el servidor
 
@@ -194,6 +241,22 @@ claude mcp list
 ```
 
 Abre una sesión nueva de Claude Code y ejecuta `/mcp` para comprobar la conexión.
+
+### 5. Detén el servidor Docker
+
+Cuando termines de usarlo:
+
+```bash
+docker compose down
+```
+
+Esto detiene el MCP server, pero conserva el índice local en el volumen Docker. La próxima vez puedes volver a arrancarlo con `docker compose up --build -d`.
+
+Si quieres borrar también el índice y reconstruirlo desde cero:
+
+```bash
+docker compose down -v
+```
 
 ## Preguntas para comprobar el RAG
 
@@ -266,21 +329,7 @@ Si cambias código Python, dependencias o el Dockerfile, vuelve a usar `docker c
 
 ## Instalación nativa
 
-Esta opción es útil para desarrollar el proyecto o ejecutar MCP mediante STDIO. Necesita Python 3.11 o superior; las versiones verificadas por CI son Python 3.11 y 3.13.
-
-Linux y macOS:
-
-```bash
-./scripts/setup.sh
-```
-
-Windows PowerShell:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1
-```
-
-Los scripts detectan Python, crean `.venv`, instalan el servidor MCP, validan el contenido, ejecutan la ingesta y realizan una recuperación de prueba. No es necesario activar el entorno virtual.
+La instalación nativa recomendada está descrita al inicio del README: primero ejecuta `setup` para instalar y después `ingest` para preparar el índice local. No es necesario activar el entorno virtual.
 
 Consulta la [guía de instalación nativa](docs/guias/instalacion-nativa.md) para los comandos manuales y la configuración STDIO en cada sistema operativo.
 
@@ -296,7 +345,29 @@ Cada Markdown debe:
 - enlazar únicamente identificadores existentes en `related`;
 - evitar repetir texto que ya sea canónico en otro documento.
 
-No dividas un PDF por páginas. Sepáralo por conceptos, patrones, riesgos, checklists o casos de uso. Después reinicia Docker o ejecuta la ingesta nativa.
+No dividas un PDF por páginas. Sepáralo por conceptos, patrones, riesgos, checklists o casos de uso.
+
+Después de añadir, reemplazar o eliminar archivos en `content/`, actualiza el índice.
+
+Linux o macOS:
+
+```bash
+./scripts/ingest.sh
+```
+
+Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\ingest.ps1
+```
+
+Si usas Docker, reinicia el servicio para que vuelva a validar e ingerir el corpus:
+
+```bash
+docker compose restart agentic-book-mcp
+```
+
+Después abre una sesión nueva de Codex o Claude Code para que el agente use el índice actualizado.
 
 La estructura, el frontmatter y el flujo de actualización están descritos en la [guía de curación de contenido](docs/guias/curacion-contenido.md).
 
@@ -330,7 +401,7 @@ Flujo recomendado para un agente:
 | Docker no puede conectarse al daemon | Inicia Docker Desktop o el servicio Docker. |
 | El puerto 8000 ya está ocupado | En Linux/macOS inicia con `AGENTIC_BOOK_HOST_PORT=8001 docker compose up --build -d`; en PowerShell define primero `$env:AGENTIC_BOOK_HOST_PORT="8001"`. Usa el mismo puerto en la URL MCP. |
 | El contenedor no llega a `healthy` | Ejecuta `docker compose logs agentic-book-mcp`; normalmente mostrará un error de validación o ingesta. |
-| GitHub rechaza el clon | Confirma que aceptaste la invitación y que Git está autenticado con la cuenta correcta. |
+| GitHub rechaza el clon | Comprueba que la URL del repositorio es correcta, que tienes conexión y que GitHub no está pidiendo autenticación pendiente. |
 | `python` o `python3` no existe | Usa Docker o instala Python 3.11 o superior antes de la instalación nativa. |
 | `MCP startup failed: No such file or directory` | La configuración STDIO apunta a un ejecutable inexistente; vuelve a ejecutar el script nativo y corrige la ruta absoluta. |
 | El agente no encuentra contenido nuevo | Reinicia el contenedor o ejecuta de nuevo la ingesta y abre una sesión nueva del cliente MCP. |

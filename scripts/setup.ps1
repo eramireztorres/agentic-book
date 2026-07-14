@@ -57,19 +57,10 @@ Write-Host "Instalando Agentic Book y el servidor MCP..."
 & $VenvPython -m pip install -e "$RepoRoot[mcp]"
 if ($LASTEXITCODE -ne 0) { throw "No se pudo instalar Agentic Book." }
 
-Write-Host "Validando el contenido curado..."
-& $AgenticBook --content-root (Join-Path $RepoRoot "content") validate-content --strict-freshness
-if ($LASTEXITCODE -ne 0) { throw "La validación del contenido falló." }
-
-Write-Host "Construyendo el índice local..."
-& $AgenticBook --content-root (Join-Path $RepoRoot "content") --data-dir (Join-Path $RepoRoot ".agentic-book-data") ingest
-if ($LASTEXITCODE -ne 0) { throw "La ingesta falló." }
-
-Write-Host "Comprobando una recuperación completa..."
-& $AgenticBook --data-dir (Join-Path $RepoRoot ".agentic-book-data") get-document playbook.sql-agent-enterprise | Out-Null
-if ($LASTEXITCODE -ne 0) { throw "La recuperación de prueba falló." }
+& $AgenticBook --help | Out-Null
+if ($LASTEXITCODE -ne 0) { throw "No se pudo comprobar el ejecutable agentic-book." }
 
 Write-Host ""
 Write-Host "Instalación completada correctamente."
 Write-Host "Ejecutable MCP: $AgenticBook"
-Write-Host "Índice local: $(Join-Path $RepoRoot '.agentic-book-data')"
+Write-Host "Siguiente paso: powershell -ExecutionPolicy Bypass -File .\scripts\ingest.ps1"

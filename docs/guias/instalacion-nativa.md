@@ -18,7 +18,25 @@ Windows PowerShell:
 powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1
 ```
 
-Los scripts buscan un Python compatible, crean `.venv`, instalan `.[mcp]`, validan `content/`, construyen `.agentic-book-data` y recuperan un documento de prueba. Si no encuentran Python, terminan sin modificar el sistema y recomiendan la vía Docker.
+Estos scripts solo instalan: buscan un Python compatible, crean `.venv` si hace falta e instalan `.[mcp]`. Si no encuentran Python 3.11 o superior, terminan sin modificar el sistema y recomiendan la vía Docker.
+
+## Preparar el índice local
+
+Después de instalar, valida `content/`, construye `.agentic-book-data` y ejecuta una recuperación de prueba.
+
+Linux o macOS:
+
+```bash
+./scripts/ingest.sh
+```
+
+Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\ingest.ps1
+```
+
+Repite este paso cuando añadas, reemplaces o elimines archivos en `content/`. Después abre una sesión nueva de Codex o Claude Code para que el proceso STDIO lea el índice actualizado.
 
 ## Instalación manual en Linux y macOS
 
@@ -35,6 +53,7 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -e ".[mcp]"
 .venv/bin/agentic-book --content-root content validate-content --strict-freshness
 .venv/bin/agentic-book --content-root content --data-dir .agentic-book-data ingest
+.venv/bin/agentic-book --data-dir .agentic-book-data get-document playbook.sql-agent-enterprise
 ```
 
 ## Instalación manual en Windows PowerShell
@@ -52,6 +71,7 @@ py -3 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[mcp]"
 .\.venv\Scripts\agentic-book.exe --content-root content validate-content --strict-freshness
 .\.venv\Scripts\agentic-book.exe --content-root content --data-dir .agentic-book-data ingest
+.\.venv\Scripts\agentic-book.exe --data-dir .agentic-book-data get-document playbook.sql-agent-enterprise
 ```
 
 No es necesario ejecutar `source`, `Activate.ps1` ni actualizar `pip` para usar el proyecto.
