@@ -82,6 +82,8 @@ def test_spanish_readme_prioritizes_native_setup_then_docker_and_guides() -> Non
     assert "### 5. Instala en Windows PowerShell" in readme
     assert "### 6. Prepara el índice local" in readme
     assert "./scripts/setup.sh" in readme
+    assert "python3.13`, `python3.12`, `python3.11`, `python3` y `python" in readme
+    assert "py -3`, `python` y `python3" in readme
     assert "./scripts/ingest.sh" in readme
     assert "powershell -ExecutionPolicy Bypass -File .\\scripts\\setup.ps1" in readme
     assert "powershell -ExecutionPolicy Bypass -File .\\scripts\\ingest.ps1" in readme

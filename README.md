@@ -35,51 +35,57 @@ GitHub puede pedirte que inicies sesión. No uses la contraseña de tu cuenta co
 
 ### 3. Instala en Linux
 
-Comprueba Python:
+Puedes comprobar qué Python tienes con:
 
 ```bash
 python3 --version
 ```
 
-Si muestra Python 3.11 o superior:
+No pasa nada si `python3` muestra una versión antigua, por ejemplo Python 3.9, siempre que tengas otro Python compatible instalado. El instalador busca automáticamente `python3.13`, `python3.12`, `python3.11`, `python3` y `python`, y usa el primero que sea Python 3.11 o superior.
+
+Ejecuta:
 
 ```bash
 ./scripts/setup.sh
 ```
 
-Este paso solo instala: crea `.venv` si hace falta e instala el ejecutable `agentic-book` con soporte MCP.
+Este paso solo instala: crea `.venv` si hace falta e instala el ejecutable `agentic-book` con soporte MCP. Si no encuentra ningún Python compatible, muestra un error claro y puedes instalar Python 3.11+ o usar Docker.
 
 ### 4. Instala en macOS
 
-Comprueba Python:
+Puedes comprobar qué Python tienes con:
 
 ```bash
 python3 --version
 ```
 
-Si muestra Python 3.11 o superior:
+No pasa nada si `python3` muestra una versión antigua, siempre que tengas `python3.11`, `python3.12` o `python3.13` disponible. El instalador busca automáticamente un Python compatible.
+
+Ejecuta:
 
 ```bash
 ./scripts/setup.sh
 ```
 
-Si `python3` no existe o es demasiado antiguo, instala Python desde `python.org` o con tu gestor habitual, por ejemplo Homebrew, y vuelve a ejecutar el script.
+Si no tienes ningún Python 3.11 o superior, instala Python desde `python.org` o con tu gestor habitual, por ejemplo Homebrew, y vuelve a ejecutar el script.
 
 ### 5. Instala en Windows PowerShell
 
-Comprueba Python:
+Puedes comprobar qué Python tienes con:
 
 ```powershell
 py -3 --version
 ```
 
-Si muestra Python 3.11 o superior:
+El instalador prueba automáticamente `py -3`, `python` y `python3`, y usa el primero que sea Python 3.11 o superior.
+
+Ejecuta:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1
 ```
 
-Este paso solo instala: crea `.venv` si hace falta e instala el ejecutable `agentic-book.exe` con soporte MCP. No necesitas ejecutar `source`, `Activate.ps1` ni activar manualmente el entorno virtual.
+Este paso solo instala: crea `.venv` si hace falta e instala el ejecutable `agentic-book.exe` con soporte MCP. Si no encuentra ningún Python compatible, muestra un error claro y puedes instalar Python 3.11+ o usar Docker. No necesitas ejecutar `source`, `Activate.ps1` ni activar manualmente el entorno virtual.
 
 ### 6. Prepara el índice local
 

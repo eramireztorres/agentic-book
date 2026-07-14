@@ -18,7 +18,7 @@ Windows PowerShell:
 powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1
 ```
 
-Estos scripts solo instalan: buscan un Python compatible, crean `.venv` si hace falta e instalan `.[mcp]`. Si no encuentran Python 3.11 o superior, terminan sin modificar el sistema y recomiendan la vía Docker.
+Estos scripts solo instalan: buscan un Python compatible, crean `.venv` si hace falta e instalan `.[mcp]`. En Linux/macOS prueban `python3.13`, `python3.12`, `python3.11`, `python3` y `python`; por tanto, `python3` puede apuntar a una versión antigua siempre que exista otro binario compatible. En Windows prueban `py -3`, `python` y `python3`. Si no encuentran Python 3.11 o superior, terminan sin modificar el sistema y recomiendan la vía Docker.
 
 ## Preparar el índice local
 
